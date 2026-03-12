@@ -39,7 +39,13 @@ class _TelaDigitaCupomWidgetState extends State<TelaDigitaCupomWidget> {
   }
 
   bool _mesmoCupom(String? a, String? b) {
-    return (a ?? '').trim().toUpperCase() == (b ?? '').trim().toUpperCase();
+    final cupomA = (a ?? '').trim().toUpperCase();
+    final cupomB = (b ?? '').trim().toUpperCase();
+    if (cupomA.isEmpty || cupomB.isEmpty) {
+      return false;
+    }
+
+    return cupomA == cupomB;
   }
 
   @override
