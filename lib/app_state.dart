@@ -34,6 +34,37 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearPurchaseSession({
+    bool clearDeviceId = false,
+    bool clearPaymentFinalId = true,
+  }) {
+    update(() {
+      _totalGeral = 0.0;
+      _itensSacola = [];
+      _dtDados = [];
+      _idPedido = 0;
+      _qrCode = '';
+      _status = '';
+      _dtDadosRelatorio = [];
+      _cpf = '';
+      _nomecliente = '';
+      _fazerpagamento = false;
+      _totalMaquininha = 0.0;
+      _idPedidoCartao = '';
+      _formapagamento = '';
+      _cupom = false;
+      _msgCupom = false;
+      _cupomInserido = '-';
+      if (clearPaymentFinalId) {
+        _idFinalCartao = '';
+      }
+      if (clearDeviceId) {
+        _deviceidplaca = '';
+        prefs.setString('ff_deviceidplaca', _deviceidplaca);
+      }
+    });
+  }
+
   late SharedPreferences prefs;
 
   double _totalGeral = 0.0;

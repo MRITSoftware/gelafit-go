@@ -531,7 +531,7 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
                                                       .relatorioEnviadoRotaLocalCartao2 ==
                                                   true) {
                                                 _model.travaLocalRota1Copy =
-                                                    await actions.tuyaLocal(
+                                                    await actions.abrirGeladeiraComRetry(
                                                   FFAppState().deviceidplaca,
                                                   'on',
                                                   FFAppState().localKey,
@@ -539,6 +539,11 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
                                                   currentUserEmail,
                                                   FFAppState().versionPlaca,
                                                 );
+                                                FFAppState().statusPlaca =
+                                                    getJsonField(
+                                                  _model.travaLocalRota1Copy,
+                                                  r'''$.ok''',
+                                                ).toString();
                                                 await showModalBottomSheet(
                                                   isScrollControlled: true,
                                                   backgroundColor:
@@ -573,7 +578,7 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
                                                       .toList(),
                                                 );
                                                 _model.travaLocalRota2Copy =
-                                                    await actions.tuyaLocal(
+                                                    await actions.abrirGeladeiraComRetry(
                                                   FFAppState().deviceidplaca,
                                                   'on',
                                                   FFAppState().localKey,
@@ -581,6 +586,11 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
                                                   currentUserEmail,
                                                   FFAppState().versionPlaca,
                                                 );
+                                                FFAppState().statusPlaca =
+                                                    getJsonField(
+                                                  _model.travaLocalRota2Copy,
+                                                  r'''$.ok''',
+                                                ).toString();
                                                 await showModalBottomSheet(
                                                   isScrollControlled: true,
                                                   backgroundColor:
@@ -829,7 +839,7 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
                                 if (_model.relatorioEnviadoRotaLocalCartao ==
                                     true) {
                                   _model.travaLocalRota1 =
-                                      await actions.tuyaLocal(
+                                      await actions.abrirGeladeiraComRetry(
                                     FFAppState().deviceidplaca,
                                     'on',
                                     FFAppState().localKey,
@@ -837,6 +847,10 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
                                     currentUserEmail,
                                     FFAppState().versionPlaca,
                                   );
+                                  FFAppState().statusPlaca = getJsonField(
+                                    _model.travaLocalRota1,
+                                    r'''$.ok''',
+                                  ).toString();
                                   await showModalBottomSheet(
                                     isScrollControlled: true,
                                     backgroundColor: Colors.transparent,
@@ -862,7 +876,7 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
                                     FFAppState().dtDadosRelatorio.toList(),
                                   );
                                   _model.travaLocalRota2 =
-                                      await actions.tuyaLocal(
+                                      await actions.abrirGeladeiraComRetry(
                                     FFAppState().deviceidplaca,
                                     'on',
                                     FFAppState().localKey,
@@ -870,6 +884,10 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
                                     currentUserEmail,
                                     FFAppState().versionPlaca,
                                   );
+                                  FFAppState().statusPlaca = getJsonField(
+                                    _model.travaLocalRota2,
+                                    r'''$.ok''',
+                                  ).toString();
                                   await showModalBottomSheet(
                                     isScrollControlled: true,
                                     backgroundColor: Colors.transparent,
@@ -951,18 +969,9 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
                                         FFAppState().cupomInserido,
                                       ),
                                 );
-                                FFAppState().itensSacola = [];
-                                FFAppState().dtDados = [];
-                                FFAppState().idPedido = 0;
-                                FFAppState().totalGeral = 0.0;
-                                FFAppState().dtDadosRelatorio = [];
-                                FFAppState().status = '';
-                                FFAppState().deviceidplaca = '';
-                                FFAppState().qrCode = '';
-                                FFAppState().cpf = '';
-                                FFAppState().nomecliente = '';
-                                FFAppState().cupom = false;
-                                FFAppState().idFinalCartao = '';
+                                FFAppState().clearPurchaseSession(
+                                  clearDeviceId: true,
+                                );
                                 safeSetState(() {});
 
                                 context.goNamed(
@@ -1052,3 +1061,4 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
     );
   }
 }
+

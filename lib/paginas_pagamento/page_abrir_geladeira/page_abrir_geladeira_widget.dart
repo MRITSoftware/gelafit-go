@@ -129,17 +129,9 @@ class _PageAbrirGeladeiraWidgetState extends State<PageAbrirGeladeiraWidget>
                             hoverColor: Colors.transparent,
                             highlightColor: Colors.transparent,
                             onTap: () async {
-                              FFAppState().totalGeral = 0.0;
-                              FFAppState().itensSacola = [];
-                              FFAppState().dtDados = [];
-                              FFAppState().dtDadosRelatorio = [];
-                              FFAppState().idPedido = 0;
-                              FFAppState().status = '';
-                              FFAppState().qrCode = '';
-                              FFAppState().cpf = '';
-                              FFAppState().cupom = false;
-                              FFAppState().idFinalCartao = '';
-                              FFAppState().nomecliente = '';
+                              FFAppState().clearPurchaseSession(
+                                clearPaymentFinalId: true,
+                              );
                               safeSetState(() {});
 
                               context.goNamed(
@@ -394,19 +386,10 @@ class _PageAbrirGeladeiraWidgetState extends State<PageAbrirGeladeiraWidget>
                               if (shouldUpdate) safeSetState(() {});
                             },
                             onEnded: () async {
-                              FFAppState().fazerpagamento = false;
+                              FFAppState().clearPurchaseSession(
+                                clearPaymentFinalId: true,
+                              );
                               safeSetState(() {});
-                              FFAppState().totalGeral = 0.0;
-                              FFAppState().itensSacola = [];
-                              FFAppState().dtDados = [];
-                              FFAppState().dtDadosRelatorio = [];
-                              FFAppState().idPedido = 0;
-                              FFAppState().status = '';
-                              FFAppState().qrCode = '';
-                              FFAppState().cpf = '';
-                              FFAppState().cupom = false;
-                              FFAppState().idFinalCartao = '';
-                              FFAppState().nomecliente = '';
                               safeSetState(() {});
                               await PlacasGelaFitTable().update(
                                 data: {

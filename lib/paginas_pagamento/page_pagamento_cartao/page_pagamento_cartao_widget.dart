@@ -194,20 +194,10 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                                     FFAppState().cupomInserido,
                                   ),
                             );
-                            FFAppState().itensSacola = [];
-                            FFAppState().dtDados = [];
-                            FFAppState().idPedido = 0;
-                            FFAppState().totalGeral = 0.0;
-                            FFAppState().dtDadosRelatorio = [];
-                            FFAppState().status = '';
-                            FFAppState().deviceidplaca = '';
-                            FFAppState().qrCode = '';
-                            FFAppState().cpf = '';
-                            FFAppState().nomecliente = '';
-                            FFAppState().fazerpagamento = false;
-                            FFAppState().totalMaquininha = 0.0;
-                            FFAppState().idPedidoCartao = '';
-                            FFAppState().cupom = false;
+                            FFAppState().clearPurchaseSession(
+                              clearDeviceId: true,
+                              clearPaymentFinalId: false,
+                            );
                             safeSetState(() {});
 
                             context.goNamed(
@@ -925,20 +915,10 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                                           FFAppState().cupomInserido,
                                         ),
                                   );
-                                  FFAppState().itensSacola = [];
-                                  FFAppState().dtDados = [];
-                                  FFAppState().idPedido = 0;
-                                  FFAppState().totalGeral = 0.0;
-                                  FFAppState().dtDadosRelatorio = [];
-                                  FFAppState().status = '';
-                                  FFAppState().deviceidplaca = '';
-                                  FFAppState().qrCode = '';
-                                  FFAppState().cpf = '';
-                                  FFAppState().nomecliente = '';
-                                  FFAppState().fazerpagamento = false;
-                                  FFAppState().totalMaquininha = 0.0;
-                                  FFAppState().idPedidoCartao = '';
-                                  FFAppState().cupom = false;
+                                  FFAppState().clearPurchaseSession(
+                                    clearDeviceId: true,
+                                    clearPaymentFinalId: false,
+                                  );
                                   safeSetState(() {});
 
                                   context.goNamed(

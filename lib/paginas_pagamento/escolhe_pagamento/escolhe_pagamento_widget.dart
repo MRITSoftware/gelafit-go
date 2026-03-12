@@ -190,18 +190,10 @@ class _EscolhePagamentoWidgetState extends State<EscolhePagamentoWidget> {
                             );
                           },
                         );
-                        FFAppState().itensSacola = [];
-                        FFAppState().dtDados = [];
-                        FFAppState().idPedido = 0;
-                        FFAppState().totalGeral = 0.0;
-                        FFAppState().dtDadosRelatorio = [];
-                        FFAppState().status = '';
-                        FFAppState().deviceidplaca = '';
-                        FFAppState().qrCode = '';
-                        FFAppState().cpf = '';
-                        FFAppState().nomecliente = '';
-                        FFAppState().totalMaquininha = 0.0;
-                        FFAppState().idPedidoCartao = '';
+                        FFAppState().clearPurchaseSession(
+                          clearDeviceId: true,
+                          clearPaymentFinalId: false,
+                        );
                         safeSetState(() {});
 
                         context.goNamed(
@@ -322,18 +314,10 @@ class _EscolhePagamentoWidgetState extends State<EscolhePagamentoWidget> {
                             );
                           },
                         );
-                        FFAppState().itensSacola = [];
-                        FFAppState().dtDados = [];
-                        FFAppState().idPedido = 0;
-                        FFAppState().totalGeral = 0.0;
-                        FFAppState().dtDadosRelatorio = [];
-                        FFAppState().status = '';
-                        FFAppState().deviceidplaca = '';
-                        FFAppState().qrCode = '';
-                        FFAppState().cpf = '';
-                        FFAppState().nomecliente = '';
-                        FFAppState().totalMaquininha = 0.0;
-                        FFAppState().idPedidoCartao = '';
+                        FFAppState().clearPurchaseSession(
+                          clearDeviceId: true,
+                          clearPaymentFinalId: false,
+                        );
                         safeSetState(() {});
 
                         context.goNamed(

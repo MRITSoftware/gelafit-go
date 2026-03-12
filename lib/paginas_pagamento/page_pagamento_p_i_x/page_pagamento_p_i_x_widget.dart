@@ -393,16 +393,10 @@ class _PagePagamentoPIXWidgetState extends State<PagePagamentoPIXWidget>
                                             },
                                           );
 
-                                          FFAppState().itensSacola = [];
-                                          FFAppState().dtDados = [];
-                                          FFAppState().idPedido = 0;
-                                          FFAppState().totalGeral = 0.0;
-                                          FFAppState().dtDadosRelatorio = [];
-                                          FFAppState().status = '';
-                                          FFAppState().deviceidplaca = '';
-                                          FFAppState().qrCode = '';
-                                          FFAppState().cpf = '';
-                                          FFAppState().nomecliente = '';
+                                          FFAppState().clearPurchaseSession(
+                                            clearDeviceId: true,
+                                            clearPaymentFinalId: false,
+                                          );
                                           safeSetState(() {});
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
@@ -674,18 +668,10 @@ class _PagePagamentoPIXWidgetState extends State<PagePagamentoPIXWidget>
                                                   FFAppState().cupomInserido,
                                                 ),
                                           );
-                                          FFAppState().itensSacola = [];
-                                          FFAppState().dtDados = [];
-                                          FFAppState().idPedido = 0;
-                                          FFAppState().totalGeral = 0.0;
-                                          FFAppState().dtDadosRelatorio = [];
-                                          FFAppState().status = '';
-                                          FFAppState().deviceidplaca = '';
-                                          FFAppState().qrCode = '';
-                                          FFAppState().cpf = '';
-                                          FFAppState().nomecliente = '';
-                                          FFAppState().cupom = false;
-                                          FFAppState().cupomInserido = '-';
+                                          FFAppState().clearPurchaseSession(
+                                            clearDeviceId: true,
+                                            clearPaymentFinalId: false,
+                                          );
                                           safeSetState(() {});
 
                                           context.goNamed(
@@ -879,7 +865,7 @@ class _PagePagamentoPIXWidgetState extends State<PagePagamentoPIXWidget>
                                                         true) {
                                                       _model.travaLocalRota1 =
                                                           await actions
-                                                              .tuyaLocal(
+                                                              .abrirGeladeiraComRetry(
                                                         FFAppState()
                                                             .deviceidplaca,
                                                         'on',
@@ -913,6 +899,22 @@ class _PagePagamentoPIXWidgetState extends State<PagePagamentoPIXWidget>
                                                         _model.travaLocalRota1,
                                                         r'''$.ok''',
                                                       ).toString();
+                                                      if (getJsonField(
+                                                            _model
+                                                                .travaLocalRota1,
+                                                            r'''$.success''',
+                                                          ) !=
+                                                          true) {
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                          SnackBar(
+                                                            content: Text(
+                                                              'Pagamento aprovado, mas a abertura falhou. ID: ${getJsonField(_model.travaLocalRota1, r'''$.transaction_id''')}',
+                                                            ),
+                                                          ),
+                                                        );
+                                                      }
                                                       safeSetState(() {});
                                                     } else {
                                                       await actions
@@ -923,7 +925,7 @@ class _PagePagamentoPIXWidgetState extends State<PagePagamentoPIXWidget>
                                                       );
                                                       _model.travaLocalRota2 =
                                                           await actions
-                                                              .tuyaLocal(
+                                                              .abrirGeladeiraComRetry(
                                                         FFAppState()
                                                             .deviceidplaca,
                                                         'on',
@@ -957,6 +959,22 @@ class _PagePagamentoPIXWidgetState extends State<PagePagamentoPIXWidget>
                                                         _model.travaLocalRota2,
                                                         r'''$.ok''',
                                                       ).toString();
+                                                      if (getJsonField(
+                                                            _model
+                                                                .travaLocalRota2,
+                                                            r'''$.success''',
+                                                          ) !=
+                                                          true) {
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                          SnackBar(
+                                                            content: Text(
+                                                              'Pagamento aprovado, mas a abertura falhou. ID: ${getJsonField(_model.travaLocalRota2, r'''$.transaction_id''')}',
+                                                            ),
+                                                          ),
+                                                        );
+                                                      }
                                                       safeSetState(() {});
                                                     }
 
@@ -1075,3 +1093,4 @@ class _PagePagamentoPIXWidgetState extends State<PagePagamentoPIXWidget>
     );
   }
 }
+
