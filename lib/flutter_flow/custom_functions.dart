@@ -35,9 +35,13 @@ List<CupomdescontoRow>? filtrarCuponsNaoUsados(
   final resultado = <CupomdescontoRow>[];
   for (final cupom in cuponsDisponiveis) {
     final codigo = (cupom.cupom ?? '').trim();
+    final disponibilidade = (cupom.disponibilidade ?? '').trim().toLowerCase();
     if (codigo.isEmpty) continue;
 
-    if (!usadosSet.contains(codigo.toLowerCase())) {
+    final exibivelNaLista =
+        disponibilidade.isEmpty || disponibilidade == 'todas';
+
+    if (exibivelNaLista && !usadosSet.contains(codigo.toLowerCase())) {
       resultado.add(cupom);
     }
   }

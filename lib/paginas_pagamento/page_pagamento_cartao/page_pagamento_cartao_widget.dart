@@ -31,6 +31,24 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
+  String _normalizedPaymentIntentStatus(dynamic response) {
+    final rawStatus = StatusPagCartaoCall.status(response)?.trim();
+    if (rawStatus == null || rawStatus.isEmpty) {
+      return '';
+    }
+
+    return rawStatus.toUpperCase().replaceAll('-', '_').replaceAll(' ', '_');
+  }
+
+  bool _requiresFinalConfirmation(String status) =>
+      status == 'FINISHED' || status == 'CONFIRMATION_REQUIRED';
+
+  bool _isCanceledOrFailed(String status) =>
+      status == 'CANCELED' ||
+      status == 'CANCELLED' ||
+      status == 'ERROR' ||
+      status == 'ABANDONED';
+
   @override
   void initState() {
     super.initState();
@@ -95,6 +113,9 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
           );
         }
         final pagePagamentoCartaoStatusPagCartaoResponse = snapshot.data!;
+        final statusPagamento = _normalizedPaymentIntentStatus(
+          pagePagamentoCartaoStatusPagCartaoResponse.jsonBody,
+        );
 
         return PopScope(
           canPop: false,
@@ -249,11 +270,7 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                                   mainAxisSize: MainAxisSize.max,
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    if (StatusPagCartaoCall.status(
-                                          pagePagamentoCartaoStatusPagCartaoResponse
-                                              .jsonBody,
-                                        ) ==
-                                        'OPEN')
+                                    if (statusPagamento == 'OPEN')
                                       Container(
                                         width:
                                             MediaQuery.sizeOf(context).width *
@@ -316,11 +333,7 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                                           ),
                                         ),
                                       ),
-                                    if (StatusPagCartaoCall.status(
-                                          pagePagamentoCartaoStatusPagCartaoResponse
-                                              .jsonBody,
-                                        ) ==
-                                        'ON_TERMINAL')
+                                    if (statusPagamento == 'ON_TERMINAL')
                                       Container(
                                         width:
                                             MediaQuery.sizeOf(context).width *
@@ -381,11 +394,9 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                                           ),
                                         ),
                                       ),
-                                    if (StatusPagCartaoCall.status(
-                                          pagePagamentoCartaoStatusPagCartaoResponse
-                                              .jsonBody,
-                                        ) ==
-                                        'FINISHED')
+                                    if (_requiresFinalConfirmation(
+                                      statusPagamento,
+                                    ))
                                       Container(
                                         width:
                                             MediaQuery.sizeOf(context).width *
@@ -447,11 +458,7 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                                           ),
                                         ),
                                       ),
-                                    if (StatusPagCartaoCall.status(
-                                          pagePagamentoCartaoStatusPagCartaoResponse
-                                              .jsonBody,
-                                        ) ==
-                                        'CANCELED')
+                                    if (_isCanceledOrFailed(statusPagamento))
                                       Container(
                                         width:
                                             MediaQuery.sizeOf(context).width *
@@ -521,10 +528,7 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                           ),
                         ),
                       ),
-                      if (StatusPagCartaoCall.status(
-                            pagePagamentoCartaoStatusPagCartaoResponse.jsonBody,
-                          ) !=
-                          'FINISHED')
+                      if (!_requiresFinalConfirmation(statusPagamento))
                         Material(
                           color: Colors.transparent,
                           elevation: 2.0,
@@ -566,11 +570,7 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                                                   .fontStyle,
                                         ),
                                   ),
-                                  if (StatusPagCartaoCall.status(
-                                        pagePagamentoCartaoStatusPagCartaoResponse
-                                            .jsonBody,
-                                      ) ==
-                                      'OPEN')
+                                  if (statusPagamento == 'OPEN')
                                     Text(
                                       '1. Clique no botão verde na maquininha para iniciar',
                                       textAlign: TextAlign.center,
@@ -593,11 +593,7 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                                                     .fontStyle,
                                           ),
                                     ),
-                                  if (StatusPagCartaoCall.status(
-                                        pagePagamentoCartaoStatusPagCartaoResponse
-                                            .jsonBody,
-                                      ) ==
-                                      'ON_TERMINAL')
+                                  if (statusPagamento == 'ON_TERMINAL')
                                     Text(
                                       '2. Insira, passe ou aproxime o cartão na maquininha',
                                       textAlign: TextAlign.center,
@@ -620,13 +616,11 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                                                     .fontStyle,
                                           ),
                                     ),
-                                  if (StatusPagCartaoCall.status(
-                                        pagePagamentoCartaoStatusPagCartaoResponse
-                                            .jsonBody,
-                                      ) ==
-                                      'FINISHED')
+                                  if (_requiresFinalConfirmation(
+                                    statusPagamento,
+                                  ))
                                     Text(
-                                      '3. Aguarde...\n\nEstamos confirmando seu pagamento com a financeira.',
+                                      '3. Confirme a etapa final.\n\nEstamos validando o retorno da maquininha para confirmar seu pagamento.',
                                       textAlign: TextAlign.center,
                                       style: FlutterFlowTheme.of(context)
                                           .bodyLarge
@@ -647,16 +641,11 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                                                     .fontStyle,
                                           ),
                                     ),
-                                  if ((StatusPagCartaoCall.status(
-                                            pagePagamentoCartaoStatusPagCartaoResponse
-                                                .jsonBody,
-                                          ) !=
-                                          'FINISHED') &&
-                                      (StatusPagCartaoCall.status(
-                                            pagePagamentoCartaoStatusPagCartaoResponse
-                                                .jsonBody,
-                                          ) !=
-                                          'OPEN'))
+                                  if ((statusPagamento != 'OPEN') &&
+                                      !_requiresFinalConfirmation(
+                                        statusPagamento,
+                                      ) &&
+                                      statusPagamento.isNotEmpty)
                                     Text(
                                       'Para cancelar o pagamento, aperte o botão vermelho na maquininha uma única vez.',
                                       textAlign: TextAlign.center,
@@ -687,6 +676,76 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                                                     .fontStyle,
                                           ),
                                     ),
+                                  if ((statusPagamento == 'PROCESSING') ||
+                                      (statusPagamento == 'PROCESSED'))
+                                    Text(
+                                      'A maquininha estA processando seu cartao. Aguarde alguns segundos.',
+                                      textAlign: TextAlign.center,
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyLarge
+                                          .override(
+                                            font: GoogleFonts.readexPro(
+                                              fontWeight: FontWeight.w500,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyLarge
+                                                      .fontStyle,
+                                            ),
+                                            fontSize: 20.0,
+                                            letterSpacing: 0.0,
+                                            fontWeight: FontWeight.w500,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyLarge
+                                                    .fontStyle,
+                                          ),
+                                    ),
+                                  if (statusPagamento == 'CONFIRMATION_REQUIRED')
+                                    Text(
+                                      'O pagamento foi concluido na maquininha. Toque em continuar para validar a aprovacao.',
+                                      textAlign: TextAlign.center,
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyLarge
+                                          .override(
+                                            font: GoogleFonts.readexPro(
+                                              fontWeight: FontWeight.w500,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyLarge
+                                                      .fontStyle,
+                                            ),
+                                            fontSize: 20.0,
+                                            letterSpacing: 0.0,
+                                            fontWeight: FontWeight.w500,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyLarge
+                                                    .fontStyle,
+                                          ),
+                                    ),
+                                  if (statusPagamento.isEmpty)
+                                    Text(
+                                      'Nao foi possivel ler o status do pagamento. Aguarde alguns segundos.',
+                                      textAlign: TextAlign.center,
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyLarge
+                                          .override(
+                                            font: GoogleFonts.readexPro(
+                                              fontWeight: FontWeight.w500,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyLarge
+                                                      .fontStyle,
+                                            ),
+                                            fontSize: 20.0,
+                                            letterSpacing: 0.0,
+                                            fontWeight: FontWeight.w500,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyLarge
+                                                    .fontStyle,
+                                          ),
+                                    ),
                                 ].divide(SizedBox(height: 12.0)),
                               ),
                             ),
@@ -713,11 +772,7 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                                 mainAxisSize: MainAxisSize.min,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  if (StatusPagCartaoCall.status(
-                                        pagePagamentoCartaoStatusPagCartaoResponse
-                                            .jsonBody,
-                                      ) ==
-                                      'OPEN')
+                                  if (statusPagamento == 'OPEN')
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(4.0),
                                       child: Image.asset(
@@ -727,11 +782,7 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                                         fit: BoxFit.cover,
                                       ),
                                     ),
-                                  if (StatusPagCartaoCall.status(
-                                        pagePagamentoCartaoStatusPagCartaoResponse
-                                            .jsonBody,
-                                      ) ==
-                                      'ON_TERMINAL')
+                                  if (statusPagamento == 'ON_TERMINAL')
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(8.0),
                                       child: Image.asset(
@@ -741,11 +792,7 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                                         fit: BoxFit.contain,
                                       ),
                                     ),
-                                  if (StatusPagCartaoCall.status(
-                                        pagePagamentoCartaoStatusPagCartaoResponse
-                                            .jsonBody,
-                                      ) ==
-                                      'CANCELED')
+                                  if (_isCanceledOrFailed(statusPagamento))
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(8.0),
                                       child: Image.asset(
@@ -755,11 +802,9 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                                         fit: BoxFit.contain,
                                       ),
                                     ),
-                                  if (StatusPagCartaoCall.status(
-                                        pagePagamentoCartaoStatusPagCartaoResponse
-                                            .jsonBody,
-                                      ) ==
-                                      'FINISHED')
+                                  if (_requiresFinalConfirmation(
+                                    statusPagamento,
+                                  ))
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(8.0),
                                       child: Image.asset(
@@ -781,11 +826,7 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            if (StatusPagCartaoCall.status(
-                                  pagePagamentoCartaoStatusPagCartaoResponse
-                                      .jsonBody,
-                                ) ==
-                                'FINISHED')
+                            if (_requiresFinalConfirmation(statusPagamento))
                               Container(
                                 width: double.infinity,
                                 decoration: BoxDecoration(
@@ -817,11 +858,7 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                                   ),
                                 ),
                               ),
-                            if (StatusPagCartaoCall.status(
-                                  pagePagamentoCartaoStatusPagCartaoResponse
-                                      .jsonBody,
-                                ) ==
-                                'CANCELED')
+                            if (_isCanceledOrFailed(statusPagamento))
                               Container(
                                 width: double.infinity,
                                 decoration: BoxDecoration(
@@ -854,11 +891,7 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                                   ),
                                 ),
                               ),
-                            if (StatusPagCartaoCall.status(
-                                  pagePagamentoCartaoStatusPagCartaoResponse
-                                      .jsonBody,
-                                ) !=
-                                'FINISHED')
+                            if (!_requiresFinalConfirmation(statusPagamento))
                               FFButtonWidget(
                                 onPressed: () async {
                                   await showDialog(
@@ -971,11 +1004,7 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                                   borderRadius: BorderRadius.circular(16.0),
                                 ),
                               ),
-                            if (StatusPagCartaoCall.status(
-                                  pagePagamentoCartaoStatusPagCartaoResponse
-                                      .jsonBody,
-                                ) ==
-                                'FINISHED')
+                            if (_requiresFinalConfirmation(statusPagamento))
                               FFButtonWidget(
                                 onPressed: () async {
                                   final idFinal = StatusPagCartaoCall.idStatusFinal(
