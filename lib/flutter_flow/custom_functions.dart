@@ -12,6 +12,46 @@ import '/backend/schema/structs/index.dart';
 import '/backend/supabase/supabase.dart';
 import '/auth/supabase_auth/auth_util.dart';
 
+String normalizarDocumento(String? value) {
+  return (value ?? '').replaceAll(RegExp(r'[^0-9A-Za-z]'), '').toUpperCase();
+}
+
+String normalizarCupom(String? value) {
+  return (value ?? '').trim().toUpperCase();
+}
+
+bool mesmoCupom(String? a, String? b) {
+  final cupomA = normalizarCupom(a);
+  final cupomB = normalizarCupom(b);
+  if (cupomA.isEmpty || cupomB.isEmpty) {
+    return false;
+  }
+
+  return cupomA == cupomB;
+}
+
+bool cupomDisponivelParaCpf(String? disponibilidade, String? cpf) {
+  final disponibilidadeTratada = (disponibilidade ?? '').trim();
+  if (disponibilidadeTratada.isEmpty ||
+      disponibilidadeTratada.toLowerCase() == 'todas') {
+    return true;
+  }
+
+  return normalizarDocumento(disponibilidadeTratada) ==
+      normalizarDocumento(cpf);
+}
+
+bool cupomDisponivelParaUnidade(List<String>? unidades, String? unidadeAtual) {
+  if (unidades == null || unidades.isEmpty) {
+    return false;
+  }
+
+  final unidadeNormalizada = normalizarDocumento(unidadeAtual);
+  return unidades.any(
+    (unidade) => normalizarDocumento(unidade) == unidadeNormalizada,
+  );
+}
+
 List<CupomdescontoRow>? filtrarCuponsNaoUsados(
   List<CupomdescontoRow>? cuponsDisponiveis,
   List<GelaFitUsuariosCuponsRow>? cuponsUsados,

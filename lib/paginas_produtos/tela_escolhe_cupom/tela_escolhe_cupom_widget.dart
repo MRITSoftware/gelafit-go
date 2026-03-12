@@ -573,12 +573,21 @@ class _TelaEscolheCupomWidgetState extends State<TelaEscolheCupomWidget> {
                                                                           ) ??
                                                                           false;
                                                                   if (confirmDialogResponse) {
-                                                                    if (colunaPrincipalCupomdescontoRow
-                                                                            ?.disponibilidade ==
-                                                                        'todas') {
-                                                                      if ((colunaPrincipalCupomdescontoRow?.cupom ==
-                                                                              _model
-                                                                                  .cupomSelecionado) &&
+                                                                    if ((colunaPrincipalCupomdescontoRow
+                                                                                ?.disponibilidade
+                                                                                ?.trim()
+                                                                                .toLowerCase() ==
+                                                                            'todas') &&
+                                                                        functions.mesmoCupom(
+                                                                          colunaPrincipalCupomdescontoRow
+                                                                              ?.cupom,
+                                                                          _model
+                                                                              .cupomSelecionado,
+                                                                        )) {
+                                                                      if ((functions.mesmoCupom(
+                                                                                colunaPrincipalCupomdescontoRow?.cupom,
+                                                                                _model.cupomSelecionado,
+                                                                              )) &&
                                                                           (FFAppState().cpf ==
                                                                               blurGelaFitUsuariosCuponsRowList.firstOrNull?.cpf)) {
                                                                         await showDialog(
@@ -683,9 +692,11 @@ class _TelaEscolheCupomWidgetState extends State<TelaEscolheCupomWidget> {
                                                                         }
                                                                       }
                                                                     } else {
-                                                                      if (colunaPrincipalCupomdescontoRow
-                                                                              ?.disponibilidade ==
-                                                                          currentUserEmail) {
+                                                                      if (functions.cupomDisponivelParaCpf(
+                                                                            colunaPrincipalCupomdescontoRow
+                                                                                ?.disponibilidade,
+                                                                            FFAppState().cpf,
+                                                                          )) {
                                                                         if (colunaPrincipalCupomdescontoRow?.unico ==
                                                                             's') {
                                                                           await GelaFitUsuariosCuponsTable()
@@ -933,7 +944,12 @@ class _TelaEscolheCupomWidgetState extends State<TelaEscolheCupomWidget> {
                                                                               },
                                                                             );
                                                                           } else {
-                                                                            if (colunaPrincipalCupomdescontoRow?.unidades.contains(currentUserEmail) ==
+                                                                            if (functions
+                                                                                    .cupomDisponivelParaUnidade(
+                                                                                  colunaPrincipalCupomdescontoRow
+                                                                                      ?.unidades,
+                                                                                  currentUserEmail,
+                                                                                ) ==
                                                                                 true) {
                                                                               if (colunaPrincipalCupomdescontoRow?.unico == 's') {
                                                                                 await GelaFitUsuariosCuponsTable().insert({
