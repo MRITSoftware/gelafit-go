@@ -23,6 +23,25 @@ class TelaDigitaCupomWidget extends StatefulWidget {
 class _TelaDigitaCupomWidgetState extends State<TelaDigitaCupomWidget> {
   late TelaDigitaCupomModel _model;
 
+  String _normalizeDocumento(String? value) {
+    return (value ?? '').replaceAll(RegExp(r'[^0-9A-Za-z]'), '').toUpperCase();
+  }
+
+  bool _cupomDisponivelParaCpf(String? disponibilidade, String? cpf) {
+    final disponibilidadeTratada = (disponibilidade ?? '').trim();
+    if (disponibilidadeTratada.isEmpty ||
+        disponibilidadeTratada.toLowerCase() == 'todas') {
+      return true;
+    }
+
+    return _normalizeDocumento(disponibilidadeTratada) ==
+        _normalizeDocumento(cpf);
+  }
+
+  bool _mesmoCupom(String? a, String? b) {
+    return (a ?? '').trim().toUpperCase() == (b ?? '').trim().toUpperCase();
+  }
+
   @override
   void setState(VoidCallback callback) {
     super.setState(callback);
@@ -181,16 +200,11 @@ class _TelaDigitaCupomWidgetState extends State<TelaDigitaCupomWidget> {
                     Padding(
                       padding: EdgeInsets.all(20.0),
                       child: FutureBuilder<List<CupomdescontoRow>>(
-                        future: CupomdescontoTable().querySingleRow(
-                          queryFn: (q) => q
-                              .eqOrNull(
-                                'cupom',
-                                _model.txtInserirCupomTextController.text,
-                              )
-                              .eqOrNull(
-                                'disponibilidade',
-                                FFAppState().cpf,
-                              ),
+                        future: CupomdescontoTable().queryRows(
+                          queryFn: (q) => q.eqOrNull(
+                            'cupom',
+                            _model.txtInserirCupomTextController.text,
+                          ),
                         ),
                         builder: (context, snapshot) {
                           // Customize what your widget looks like when it's loading.
@@ -210,10 +224,17 @@ class _TelaDigitaCupomWidgetState extends State<TelaDigitaCupomWidget> {
                           List<CupomdescontoRow>
                               colunaPrincipalCupomdescontoRowList =
                               snapshot.data!;
+                          final cuponsValidosParaCpf =
+                              colunaPrincipalCupomdescontoRowList
+                                  .where((cupom) => _cupomDisponivelParaCpf(
+                                        cupom.disponibilidade,
+                                        FFAppState().cpf,
+                                      ))
+                                  .toList();
 
                           final colunaPrincipalCupomdescontoRow =
-                              colunaPrincipalCupomdescontoRowList.isNotEmpty
-                                  ? colunaPrincipalCupomdescontoRowList.first
+                              cuponsValidosParaCpf.isNotEmpty
+                                  ? cuponsValidosParaCpf.first
                                   : null;
 
                           return Column(
@@ -421,8 +442,10 @@ class _TelaDigitaCupomWidgetState extends State<TelaDigitaCupomWidget> {
                                   ),
                                 ].divide(SizedBox(width: 10.0)),
                               ),
-                              if (_model.txtInserirCupomTextController.text ==
-                                  colunaPrincipalCupomdescontoRow?.cupom)
+                              if (_mesmoCupom(
+                                _model.txtInserirCupomTextController.text,
+                                colunaPrincipalCupomdescontoRow?.cupom,
+                              ))
                                 Row(
                                   mainAxisSize: MainAxisSize.max,
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -480,11 +503,9 @@ class _TelaDigitaCupomWidgetState extends State<TelaDigitaCupomWidget> {
                                     ),
                                   ],
                                 ),
-                              if ((_model.txtInserirCupomTextController
-                                              .text !=
-                                          '') &&
-                                  (_model.txtInserirCupomTextController.text !=
-                                      _model.simpleSearchResults.firstOrNull))
+                              if ((_model.txtInserirCupomTextController.text !=
+                                      '') &&
+                                  (colunaPrincipalCupomdescontoRow == null))
                                 Text(
                                   'Ops! Não encontramos este cupom. Confira se digitou corretamente.',
                                   style: FlutterFlowTheme.of(context)
@@ -610,11 +631,11 @@ class _TelaDigitaCupomWidgetState extends State<TelaDigitaCupomWidget> {
                                   return Container(
                                     decoration: BoxDecoration(),
                                     child: Visibility(
-                                      visible: _model
-                                              .txtInserirCupomTextController
-                                              .text ==
-                                          colunaPrincipalCupomdescontoRow
-                                              ?.cupom,
+                                      visible: _mesmoCupom(
+                                        _model.txtInserirCupomTextController
+                                            .text,
+                                        colunaPrincipalCupomdescontoRow?.cupom,
+                                      ),
                                       child: Padding(
                                         padding: EdgeInsetsDirectional.fromSTEB(
                                             8.0, 16.0, 8.0, 0.0),
@@ -697,14 +718,18 @@ class _TelaDigitaCupomWidgetState extends State<TelaDigitaCupomWidget> {
                                                         ) ??
                                                         false;
                                                 if (confirmDialogResponse) {
-                                                  if (colunaPrincipalCupomdescontoRow
-                                                          ?.cupom ==
-                                                      _model
-                                                          .txtInserirCupomTextController
-                                                          .text) {
-                                                    if (colunaPrincipalCupomdescontoRow
-                                                            ?.disponibilidade ==
-                                                        FFAppState().cpf) {
+                                                  if (_mesmoCupom(
+                                                    colunaPrincipalCupomdescontoRow
+                                                        ?.cupom,
+                                                    _model
+                                                        .txtInserirCupomTextController
+                                                        .text,
+                                                  )) {
+                                                    if (_cupomDisponivelParaCpf(
+                                                      colunaPrincipalCupomdescontoRow
+                                                          ?.disponibilidade,
+                                                      FFAppState().cpf,
+                                                    )) {
                                                       if ((containerGelaFitUsuariosCuponsRow
                                                                   ?.cupom ==
                                                               _model
