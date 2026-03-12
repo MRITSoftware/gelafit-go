@@ -27,6 +27,10 @@ class _TelaDigitaCupomWidgetState extends State<TelaDigitaCupomWidget> {
     return (value ?? '').replaceAll(RegExp(r'[^0-9A-Za-z]'), '').toUpperCase();
   }
 
+  String _normalizeCupom(String? value) {
+    return (value ?? '').trim().toUpperCase();
+  }
+
   bool _cupomDisponivelParaCpf(String? disponibilidade, String? cpf) {
     final disponibilidadeTratada = (disponibilidade ?? '').trim();
     if (disponibilidadeTratada.isEmpty ||
@@ -39,8 +43,8 @@ class _TelaDigitaCupomWidgetState extends State<TelaDigitaCupomWidget> {
   }
 
   bool _mesmoCupom(String? a, String? b) {
-    final cupomA = (a ?? '').trim().toUpperCase();
-    final cupomB = (b ?? '').trim().toUpperCase();
+    final cupomA = _normalizeCupom(a);
+    final cupomB = _normalizeCupom(b);
     if (cupomA.isEmpty || cupomB.isEmpty) {
       return false;
     }
@@ -205,43 +209,23 @@ class _TelaDigitaCupomWidgetState extends State<TelaDigitaCupomWidget> {
                     ),
                     Padding(
                       padding: EdgeInsets.all(20.0),
-                      child: FutureBuilder<List<CupomdescontoRow>>(
-                        future: CupomdescontoTable().queryRows(
-                          queryFn: (q) => q.eqOrNull(
-                            'cupom',
+                      child: Builder(
+                        builder: (context) {
+                          final cupomDigitado = _normalizeCupom(
                             _model.txtInserirCupomTextController.text,
-                          ),
-                        ),
-                        builder: (context, snapshot) {
-                          // Customize what your widget looks like when it's loading.
-                          if (!snapshot.hasData) {
-                            return Center(
-                              child: SizedBox(
-                                width: 50.0,
-                                height: 50.0,
-                                child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Color(0xFF80CC28),
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
-                          List<CupomdescontoRow>
-                              colunaPrincipalCupomdescontoRowList =
-                              snapshot.data!;
-                          final cuponsValidosParaCpf =
-                              colunaPrincipalCupomdescontoRowList
-                                  .where((cupom) => _cupomDisponivelParaCpf(
-                                        cupom.disponibilidade,
-                                        FFAppState().cpf,
-                                      ))
-                                  .toList();
-
+                          );
+                          final cupomEncontrado = ctnPrincipalCupomdescontoRowList
+                              .where((cupom) =>
+                                  _normalizeCupom(cupom.cupom) == cupomDigitado)
+                              .toList();
                           final colunaPrincipalCupomdescontoRow =
-                              cuponsValidosParaCpf.isNotEmpty
-                                  ? cuponsValidosParaCpf.first
-                                  : null;
+                              cupomEncontrado
+                                      .where((cupom) => _cupomDisponivelParaCpf(
+                                            cupom.disponibilidade,
+                                            FFAppState().cpf,
+                                          ))
+                                      .toList()
+                                      .firstOrNull;
 
                           return Column(
                             mainAxisSize: MainAxisSize.max,
