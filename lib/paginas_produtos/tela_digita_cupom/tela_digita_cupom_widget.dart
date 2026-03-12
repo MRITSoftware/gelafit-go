@@ -33,9 +33,8 @@ class _TelaDigitaCupomWidgetState extends State<TelaDigitaCupomWidget> {
 
   bool _cupomDisponivelParaCpf(String? disponibilidade, String? cpf) {
     final disponibilidadeTratada = (disponibilidade ?? '').trim();
-    if (disponibilidadeTratada.isEmpty ||
-        disponibilidadeTratada.toLowerCase() == 'todas') {
-      return true;
+    if (disponibilidadeTratada.isEmpty) {
+      return false;
     }
 
     return _normalizeDocumento(disponibilidadeTratada) ==
