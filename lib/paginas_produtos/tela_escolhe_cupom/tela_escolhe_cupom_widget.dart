@@ -608,88 +608,18 @@ class _TelaEscolheCupomWidgetState extends State<TelaEscolheCupomWidget> {
                                                                           },
                                                                         );
                                                                       } else {
-                                                                        if (colunaPrincipalCupomdescontoRow?.unico ==
-                                                                            's') {
-                                                                          await GelaFitUsuariosCuponsTable()
-                                                                              .insert({
-                                                                            'CPF':
-                                                                                FFAppState().cpf,
-                                                                            'cupom':
-                                                                                _model.cupomSelecionado,
-                                                                            'valorCupom':
-                                                                                colunaPrincipalCupomdescontoRow?.valor,
-                                                                          });
-                                                                          await GelaFitClientesTable()
-                                                                              .update(
-                                                                            data: {
-                                                                              'cupom': _model.cupomSelecionado,
-                                                                            },
-                                                                            matchingRows: (rows) =>
-                                                                                rows.eqOrNull(
-                                                                              'cpf',
-                                                                              FFAppState().cpf,
-                                                                            ),
-                                                                          );
-                                                                          await CupomdescontoTable()
-                                                                              .delete(
-                                                                            matchingRows: (rows) =>
-                                                                                rows.eqOrNull(
-                                                                              'cupom',
-                                                                              _model.cupomSelecionado,
-                                                                            ),
-                                                                          );
-                                                                          FFAppState().totalGeral =
-                                                                              (double.parse((FFAppState().totalGeral * (1 - ((ctnPrincipalVarItem.valor!) ?? 0) / 100)).toStringAsFixed(2)));
-                                                                          FFAppState().cupom =
-                                                                              true;
-                                                                          FFAppState().msgCupom =
-                                                                              false;
-                                                                          FFAppState().cupomInserido =
-                                                                              _model.cupomSelecionado;
-                                                                          safeSetState(
-                                                                              () {});
-                                                                          await actions
-                                                                              .aplicaCupom(
-                                                                            colunaPrincipalCupomdescontoRow!.valor!.toDouble(),
-                                                                            colunaPrincipalCupomdescontoRow.cupom!,
-                                                                          );
-                                                                        } else {
-                                                                          await GelaFitUsuariosCuponsTable()
-                                                                              .insert({
-                                                                            'CPF':
-                                                                                FFAppState().cpf,
-                                                                            'cupom':
-                                                                                _model.cupomSelecionado,
-                                                                            'valorCupom':
-                                                                                colunaPrincipalCupomdescontoRow?.valor,
-                                                                          });
-                                                                          await GelaFitClientesTable()
-                                                                              .update(
-                                                                            data: {
-                                                                              'cupom': _model.cupomSelecionado,
-                                                                            },
-                                                                            matchingRows: (rows) =>
-                                                                                rows.eqOrNull(
-                                                                              'cpf',
-                                                                              FFAppState().cpf,
-                                                                            ),
-                                                                          );
-                                                                          FFAppState().totalGeral =
-                                                                              (double.parse((FFAppState().totalGeral * (1 - ((ctnPrincipalVarItem.valor!) ?? 0) / 100)).toStringAsFixed(2)));
-                                                                          FFAppState().cupom =
-                                                                              true;
-                                                                          FFAppState().msgCupom =
-                                                                              false;
-                                                                          FFAppState().cupomInserido =
-                                                                              _model.cupomSelecionado;
-                                                                          safeSetState(
-                                                                              () {});
-                                                                          await actions
-                                                                              .aplicaCupom(
-                                                                            colunaPrincipalCupomdescontoRow!.valor!.toDouble(),
-                                                                            colunaPrincipalCupomdescontoRow.cupom!,
-                                                                          );
-                                                                        }
+                                                                        await actions
+                                                                            .aplicarCupomPersistido(
+                                                                          _model
+                                                                              .cupomSelecionado,
+                                                                          colunaPrincipalCupomdescontoRow!
+                                                                              .valor!
+                                                                              .toDouble(),
+                                                                          colunaPrincipalCupomdescontoRow.unico ==
+                                                                              's',
+                                                                        );
+                                                                        safeSetState(
+                                                                            () {});
                                                                       }
                                                                     } else {
                                                                       if (functions.cupomDisponivelParaCpf(
@@ -697,83 +627,18 @@ class _TelaEscolheCupomWidgetState extends State<TelaEscolheCupomWidget> {
                                                                                 ?.disponibilidade,
                                                                             FFAppState().cpf,
                                                                           )) {
-                                                                        if (colunaPrincipalCupomdescontoRow?.unico ==
-                                                                            's') {
-                                                                          await GelaFitUsuariosCuponsTable()
-                                                                              .insert({
-                                                                            'CPF':
-                                                                                FFAppState().cpf,
-                                                                            'cupom':
-                                                                                _model.cupomSelecionado,
-                                                                            'valorCupom':
-                                                                                colunaPrincipalCupomdescontoRow?.valor,
-                                                                          });
-                                                                          await GelaFitClientesTable()
-                                                                              .update(
-                                                                            data: {
-                                                                              'cupom': _model.cupomSelecionado,
-                                                                            },
-                                                                            matchingRows: (rows) =>
-                                                                                rows.eqOrNull(
-                                                                              'cpf',
-                                                                              FFAppState().cpf,
-                                                                            ),
-                                                                          );
-                                                                          await CupomdescontoTable()
-                                                                              .delete(
-                                                                            matchingRows: (rows) =>
-                                                                                rows.eqOrNull(
-                                                                              'cupom',
-                                                                              _model.cupomSelecionado,
-                                                                            ),
-                                                                          );
-                                                                          FFAppState().totalGeral =
-                                                                              (double.parse((FFAppState().totalGeral * (1 - ((ctnPrincipalVarItem.valor!) ?? 0) / 100)).toStringAsFixed(2)));
-                                                                          FFAppState().cupom =
-                                                                              true;
-                                                                          FFAppState().msgCupom =
-                                                                              false;
-                                                                          FFAppState().cupomInserido =
-                                                                              _model.cupomSelecionado;
-                                                                          safeSetState(
-                                                                              () {});
-                                                                          await actions
-                                                                              .aplicaCupom(
-                                                                            colunaPrincipalCupomdescontoRow!.valor!.toDouble(),
-                                                                            colunaPrincipalCupomdescontoRow.cupom!,
-                                                                          );
-                                                                        } else {
-                                                                          await GelaFitUsuariosCuponsTable()
-                                                                              .insert({
-                                                                            'CPF':
-                                                                                FFAppState().cpf,
-                                                                            'cupom':
-                                                                                _model.cupomSelecionado,
-                                                                            'valorCupom':
-                                                                                colunaPrincipalCupomdescontoRow?.valor,
-                                                                          });
-                                                                          await GelaFitClientesTable()
-                                                                              .update(
-                                                                            data: {
-                                                                              'cupom': _model.cupomSelecionado,
-                                                                            },
-                                                                            matchingRows: (rows) =>
-                                                                                rows.eqOrNull(
-                                                                              'cpf',
-                                                                              FFAppState().cpf,
-                                                                            ),
-                                                                          );
-                                                                          FFAppState().totalGeral =
-                                                                              (double.parse((FFAppState().totalGeral * (1 - ((ctnPrincipalVarItem.valor!) ?? 0) / 100)).toStringAsFixed(2)));
-                                                                          FFAppState().cupom =
-                                                                              true;
-                                                                          FFAppState().msgCupom =
-                                                                              false;
-                                                                          FFAppState().cupomInserido =
-                                                                              _model.cupomSelecionado;
-                                                                          safeSetState(
-                                                                              () {});
-                                                                        }
+                                                                        await actions
+                                                                            .aplicarCupomPersistido(
+                                                                          _model
+                                                                              .cupomSelecionado,
+                                                                          colunaPrincipalCupomdescontoRow!
+                                                                              .valor!
+                                                                              .toDouble(),
+                                                                          colunaPrincipalCupomdescontoRow.unico ==
+                                                                              's',
+                                                                        );
+                                                                        safeSetState(
+                                                                            () {});
                                                                       } else {
                                                                         await showDialog(
                                                                           context:
@@ -951,61 +816,12 @@ class _TelaEscolheCupomWidgetState extends State<TelaEscolheCupomWidget> {
                                                                                   currentUserEmail,
                                                                                 ) ==
                                                                                 true) {
-                                                                              if (colunaPrincipalCupomdescontoRow?.unico == 's') {
-                                                                                await GelaFitUsuariosCuponsTable().insert({
-                                                                                  'CPF': FFAppState().cpf,
-                                                                                  'cupom': _model.cupomSelecionado,
-                                                                                  'valorCupom': colunaPrincipalCupomdescontoRow?.valor,
-                                                                                });
-                                                                                await GelaFitClientesTable().update(
-                                                                                  data: {
-                                                                                    'cupom': _model.cupomSelecionado,
-                                                                                  },
-                                                                                  matchingRows: (rows) => rows.eqOrNull(
-                                                                                    'cpf',
-                                                                                    FFAppState().cpf,
-                                                                                  ),
-                                                                                );
-                                                                                await CupomdescontoTable().delete(
-                                                                                  matchingRows: (rows) => rows.eqOrNull(
-                                                                                    'cupom',
-                                                                                    _model.cupomSelecionado,
-                                                                                  ),
-                                                                                );
-                                                                                FFAppState().totalGeral = (double.parse((FFAppState().totalGeral * (1 - ((ctnPrincipalVarItem.valor!) ?? 0) / 100)).toStringAsFixed(2)));
-                                                                                FFAppState().cupom = true;
-                                                                                FFAppState().msgCupom = false;
-                                                                                FFAppState().cupomInserido = _model.cupomSelecionado;
-                                                                                safeSetState(() {});
-                                                                                await actions.aplicaCupom(
-                                                                                  colunaPrincipalCupomdescontoRow!.valor!.toDouble(),
-                                                                                  colunaPrincipalCupomdescontoRow.cupom!,
-                                                                                );
-                                                                              } else {
-                                                                                await GelaFitUsuariosCuponsTable().insert({
-                                                                                  'CPF': FFAppState().cpf,
-                                                                                  'cupom': _model.cupomSelecionado,
-                                                                                  'valorCupom': colunaPrincipalCupomdescontoRow?.valor,
-                                                                                });
-                                                                                await GelaFitClientesTable().update(
-                                                                                  data: {
-                                                                                    'cupom': _model.cupomSelecionado,
-                                                                                  },
-                                                                                  matchingRows: (rows) => rows.eqOrNull(
-                                                                                    'cpf',
-                                                                                    FFAppState().cpf,
-                                                                                  ),
-                                                                                );
-                                                                                FFAppState().totalGeral = (double.parse((FFAppState().totalGeral * (1 - ((ctnPrincipalVarItem.valor!) ?? 0) / 100)).toStringAsFixed(2)));
-                                                                                FFAppState().cupom = true;
-                                                                                FFAppState().msgCupom = false;
-                                                                                FFAppState().cupomInserido = _model.cupomSelecionado;
-                                                                                safeSetState(() {});
-                                                                                await actions.aplicaCupom(
-                                                                                  colunaPrincipalCupomdescontoRow!.valor!.toDouble(),
-                                                                                  colunaPrincipalCupomdescontoRow.cupom!,
-                                                                                );
-                                                                              }
+                                                                              await actions.aplicarCupomPersistido(
+                                                                                _model.cupomSelecionado,
+                                                                                colunaPrincipalCupomdescontoRow!.valor!.toDouble(),
+                                                                                colunaPrincipalCupomdescontoRow.unico == 's',
+                                                                              );
+                                                                              safeSetState(() {});
 
                                                                               Navigator.pop(context);
                                                                             } else {

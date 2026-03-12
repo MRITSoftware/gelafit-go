@@ -755,168 +755,40 @@ class _TelaDigitaCupomWidgetState extends State<TelaDigitaCupomWidget> {
                                                               ?.clear();
                                                         });
                                                       } else {
-                                                        if (colunaPrincipalCupomdescontoRow
-                                                                ?.unico ==
-                                                            's') {
-                                                          await GelaFitUsuariosCuponsTable()
-                                                              .insert({
-                                                            'CPF': FFAppState()
-                                                                .cpf,
-                                                            'cupom': _model
-                                                                .txtInserirCupomTextController
-                                                                .text,
-                                                            'valorCupom':
-                                                                colunaPrincipalCupomdescontoRow
-                                                                    ?.valor,
-                                                          });
-                                                          await GelaFitClientesTable()
-                                                              .update(
-                                                            data: {
-                                                              'cupom': _model
-                                                                  .txtInserirCupomTextController
-                                                                  .text,
-                                                            },
-                                                            matchingRows:
-                                                                (rows) => rows
-                                                                    .eqOrNull(
-                                                              'cpf',
-                                                              FFAppState().cpf,
-                                                            ),
-                                                          );
-                                                          await CupomdescontoTable()
-                                                              .delete(
-                                                            matchingRows:
-                                                                (rows) => rows
-                                                                    .eqOrNull(
-                                                              'cupom',
-                                                              _model
-                                                                  .txtInserirCupomTextController
-                                                                  .text,
-                                                            ),
-                                                          );
-                                                          FFAppState()
-                                                              .totalGeral = (double.parse((FFAppState()
-                                                                      .totalGeral *
-                                                                  (1 -
-                                                                      ((colunaPrincipalCupomdescontoRow!.valor!) ??
-                                                                              0) /
-                                                                          100))
-                                                              .toStringAsFixed(
-                                                                  2)));
-                                                          FFAppState().cupom =
-                                                              true;
-                                                          FFAppState()
-                                                              .msgCupom = false;
-                                                          FFAppState()
-                                                                  .cupomInserido =
-                                                              _model
-                                                                  .txtInserirCupomTextController
-                                                                  .text;
-                                                          safeSetState(() {});
-                                                          await actions
-                                                              .aplicaCupom(
-                                                            colunaPrincipalCupomdescontoRow
-                                                                .valor!
-                                                                .toDouble(),
-                                                            colunaPrincipalCupomdescontoRow
-                                                                .cupom!,
-                                                          );
-                                                          await showDialog(
-                                                            context: context,
-                                                            builder:
-                                                                (alertDialogContext) {
-                                                              return AlertDialog(
-                                                                title: Text(
-                                                                    'Sucesso'),
-                                                                content: Text(
-                                                                    'Seu cupom de ${colunaPrincipalCupomdescontoRow.valor?.toString()}% foi aplicado com sucesso.'),
-                                                                actions: [
-                                                                  TextButton(
-                                                                    onPressed: () =>
-                                                                        Navigator.pop(
-                                                                            alertDialogContext),
-                                                                    child: Text(
-                                                                        'Continuar'),
-                                                                  ),
-                                                                ],
-                                                              );
-                                                            },
-                                                          );
-                                                        } else {
-                                                          await GelaFitUsuariosCuponsTable()
-                                                              .insert({
-                                                            'CPF': FFAppState()
-                                                                .cpf,
-                                                            'cupom': _model
-                                                                .txtInserirCupomTextController
-                                                                .text,
-                                                            'valorCupom':
-                                                                colunaPrincipalCupomdescontoRow
-                                                                    ?.valor,
-                                                          });
-                                                          await GelaFitClientesTable()
-                                                              .update(
-                                                            data: {
-                                                              'cupom': _model
-                                                                  .txtInserirCupomTextController
-                                                                  .text,
-                                                            },
-                                                            matchingRows:
-                                                                (rows) => rows
-                                                                    .eqOrNull(
-                                                              'cpf',
-                                                              FFAppState().cpf,
-                                                            ),
-                                                          );
-                                                          FFAppState()
-                                                              .totalGeral = (double.parse((FFAppState()
-                                                                      .totalGeral *
-                                                                  (1 -
-                                                                      ((colunaPrincipalCupomdescontoRow!.valor!) ??
-                                                                              0) /
-                                                                          100))
-                                                              .toStringAsFixed(
-                                                                  2)));
-                                                          FFAppState().cupom =
-                                                              true;
-                                                          FFAppState()
-                                                              .msgCupom = false;
-                                                          FFAppState()
-                                                                  .cupomInserido =
-                                                              _model
-                                                                  .txtInserirCupomTextController
-                                                                  .text;
-                                                          safeSetState(() {});
-                                                          await actions
-                                                              .aplicaCupom(
-                                                            colunaPrincipalCupomdescontoRow
-                                                                .valor!
-                                                                .toDouble(),
-                                                            colunaPrincipalCupomdescontoRow
-                                                                .cupom!,
-                                                          );
-                                                          await showDialog(
-                                                            context: context,
-                                                            builder:
-                                                                (alertDialogContext) {
-                                                              return AlertDialog(
-                                                                title: Text(
-                                                                    'Sucesso'),
-                                                                content: Text(
-                                                                    'Seu cupom de ${colunaPrincipalCupomdescontoRow.valor?.toString()}% foi aplicado com sucesso.'),
-                                                                actions: [
-                                                                  TextButton(
-                                                                    onPressed: () =>
-                                                                        Navigator.pop(
-                                                                            alertDialogContext),
-                                                                    child: Text(
-                                                                        'Continuar'),
-                                                                  ),
-                                                                ],
-                                                              );
-                                                            },
-                                                          );
-                                                        }
+                                                        await actions
+                                                            .aplicarCupomPersistido(
+                                                          _model
+                                                              .txtInserirCupomTextController
+                                                              .text,
+                                                          colunaPrincipalCupomdescontoRow!
+                                                              .valor!
+                                                              .toDouble(),
+                                                          colunaPrincipalCupomdescontoRow
+                                                                  .unico ==
+                                                              's',
+                                                        );
+                                                        safeSetState(() {});
+                                                        await showDialog(
+                                                          context: context,
+                                                          builder:
+                                                              (alertDialogContext) {
+                                                            return AlertDialog(
+                                                              title: Text(
+                                                                  'Sucesso'),
+                                                              content: Text(
+                                                                  'Seu cupom de ${colunaPrincipalCupomdescontoRow.valor?.toString()}% foi aplicado com sucesso.'),
+                                                              actions: [
+                                                                TextButton(
+                                                                  onPressed: () =>
+                                                                      Navigator.pop(
+                                                                          alertDialogContext),
+                                                                  child: Text(
+                                                                      'Continuar'),
+                                                                ),
+                                                              ],
+                                                            );
+                                                          },
+                                                        );
                                                       }
                                                     } else {
                                                       await showDialog(
