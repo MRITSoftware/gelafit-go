@@ -45,6 +45,7 @@ class _TelaPrincipalWidgetState extends State<TelaPrincipalWidget> {
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      FFAppState().timer = false;
       if (FFAppState().cpf == '') {
         await showModalBottomSheet(
           isScrollControlled: true,
@@ -60,7 +61,12 @@ class _TelaPrincipalWidgetState extends State<TelaPrincipalWidget> {
             );
           },
         ).then((value) => safeSetState(() {}));
+        if (FFAppState().cpf != '') {
+          _model.timerRegressivoController.onResetTimer();
+          _model.timerRegressivoController.onStartTimer();
+        }
       } else {
+        _model.timerRegressivoController.onResetTimer();
         _model.timerRegressivoController.onStartTimer();
       }
 
@@ -496,10 +502,13 @@ class _TelaPrincipalWidgetState extends State<TelaPrincipalWidget> {
                               if (shouldUpdate) safeSetState(() {});
                             },
                             onEnded: () async {
+                              FFAppState().timer = false;
                               await showModalBottomSheet(
                                 isScrollControlled: true,
                                 backgroundColor: Colors.transparent,
+                                isDismissible: false,
                                 enableDrag: false,
+                                useSafeArea: true,
                                 context: context,
                                 builder: (context) {
                                   return Padding(
@@ -510,12 +519,6 @@ class _TelaPrincipalWidgetState extends State<TelaPrincipalWidget> {
                               ).then((value) => safeSetState(() {}));
 
                               _model.timerRegressivoController.onResetTimer();
-
-                              await Future.delayed(
-                                Duration(
-                                  milliseconds: 8000,
-                                ),
-                              );
                               if (FFAppState().timer == true) {
                                 _model.timerRegressivoController.onStartTimer();
                               }

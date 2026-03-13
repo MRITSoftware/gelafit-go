@@ -112,13 +112,8 @@ class _TelaVerificaOnlineWidgetState extends State<TelaVerificaOnlineWidget> {
                     await actions.devolverCarrinho(
                       FFAppState().itensSacola.toList(),
                     );
-                    FFAppState().cpf = '';
-                    FFAppState().nomecliente = '';
-                    FFAppState().totalGeral = 0.0;
-                    FFAppState().itensSacola = [];
-                    FFAppState().dtDados = [];
-                    FFAppState().dtDadosRelatorio = [];
-                    FFAppState().totalMaquininha = 0.0;
+                    FFAppState().timer = false;
+                    FFAppState().clearPurchaseSession();
                     safeSetState(() {});
 
                     context.goNamed(
