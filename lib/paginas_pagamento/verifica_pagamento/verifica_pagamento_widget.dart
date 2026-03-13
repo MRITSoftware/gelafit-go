@@ -126,6 +126,8 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
   @override
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
+    final screenSize = MediaQuery.sizeOf(context);
+    final isCompactLayout = screenSize.width < 700 || screenSize.height < 900;
 
     return FutureBuilder<ApiCallResponse>(
       future: (_model.apiRequestCompleter ??= Completer<ApiCallResponse>()
@@ -164,16 +166,12 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
             child: Scaffold(
               key: scaffoldKey,
               backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
-              body: Container(
-                width: double.infinity,
-                height: double.infinity,
-                decoration: BoxDecoration(),
-                child: Padding(
+              body: SafeArea(
+                child: SingleChildScrollView(
                   padding:
                       EdgeInsetsDirectional.fromSTEB(24.0, 24.0, 24.0, 24.0),
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Column(
@@ -182,36 +180,32 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
                         children: [
                           Padding(
                             padding: EdgeInsets.all(8.0),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                            child: Wrap(
+                              alignment: WrapAlignment.center,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: isCompactLayout ? 16.0 : 32.0,
+                              runSpacing: 12.0,
                               children: [
                                 Container(
-                                  width: 100.0,
-                                  height: 100.0,
-                                  decoration: BoxDecoration(),
-                                ),
-                                Container(
-                                  width: 250.0,
-                                  height: 120.0,
+                                  width: isCompactLayout ? 200.0 : 250.0,
+                                  height: isCompactLayout ? 96.0 : 120.0,
                                   decoration: BoxDecoration(
                                     color: FlutterFlowTheme.of(context)
                                         .secondaryBackground,
                                   ),
                                   child: Image.asset(
                                     'assets/images/logo_gelafit-removebg-preview.png',
-                                    width: 250.0,
-                                    height: 120.0,
+                                    width: isCompactLayout ? 200.0 : 250.0,
+                                    height: isCompactLayout ? 96.0 : 120.0,
                                     fit: BoxFit.cover,
                                   ),
                                 ),
-                                Container(
-                                  width: 100.0,
-                                  height: 100.0,
-                                  decoration: BoxDecoration(),
+                                SizedBox(
+                                  width: isCompactLayout
+                                      ? screenSize.width - 48.0
+                                      : 100.0,
                                   child: Column(
-                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisSize: MainAxisSize.min,
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceEvenly,
                                     children: [
@@ -531,7 +525,8 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
                                                       .relatorioEnviadoRotaLocalCartao2 ==
                                                   true) {
                                                 _model.travaLocalRota1Copy =
-                                                    await actions.abrirGeladeiraComRetry(
+                                                    await actions
+                                                        .abrirGeladeiraComRetry(
                                                   FFAppState().deviceidplaca,
                                                   'on',
                                                   FFAppState().localKey,
@@ -578,7 +573,8 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
                                                       .toList(),
                                                 );
                                                 _model.travaLocalRota2Copy =
-                                                    await actions.abrirGeladeiraComRetry(
+                                                    await actions
+                                                        .abrirGeladeiraComRetry(
                                                   FFAppState().deviceidplaca,
                                                   'on',
                                                   FFAppState().localKey,
@@ -1061,4 +1057,3 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
     );
   }
 }
-
