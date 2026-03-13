@@ -139,9 +139,12 @@ class GlobalInactivityGuard extends StatefulWidget {
 
 class _GlobalInactivityGuardState extends State<GlobalInactivityGuard> {
   static const _timeoutDuration = Duration(minutes: 2);
+  static const _sessionPollDuration = Duration(seconds: 1);
 
   Timer? _inactivityTimer;
+  Timer? _sessionMonitorTimer;
   bool _isShowingInactivityPrompt = false;
+  String _lastTrackedCpf = '';
 
   bool get _shouldTrackInactivity =>
       !_isShowingInactivityPrompt && FFAppState().cpf.isNotEmpty;
@@ -149,8 +152,11 @@ class _GlobalInactivityGuardState extends State<GlobalInactivityGuard> {
   @override
   void initState() {
     super.initState();
+    _sessionMonitorTimer = Timer.periodic(_sessionPollDuration, (_) {
+      _syncSessionState();
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshInactivityTracking();
+      _syncSessionState();
     });
   }
 
@@ -158,17 +164,32 @@ class _GlobalInactivityGuardState extends State<GlobalInactivityGuard> {
   void didUpdateWidget(covariant GlobalInactivityGuard oldWidget) {
     super.didUpdateWidget(oldWidget);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshInactivityTracking();
+      _syncSessionState();
     });
   }
 
   @override
   void dispose() {
     _inactivityTimer?.cancel();
+    _sessionMonitorTimer?.cancel();
     super.dispose();
   }
 
   void _handleUserInteraction([PointerEvent? _]) {
+    _refreshInactivityTracking();
+  }
+
+  void _syncSessionState() {
+    if (!mounted) {
+      return;
+    }
+
+    final currentCpf = FFAppState().cpf;
+    if (currentCpf == _lastTrackedCpf) {
+      return;
+    }
+
+    _lastTrackedCpf = currentCpf;
     _refreshInactivityTracking();
   }
 
@@ -225,7 +246,7 @@ class _GlobalInactivityGuardState extends State<GlobalInactivityGuard> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        _refreshInactivityTracking();
+        _syncSessionState();
       }
     });
 
