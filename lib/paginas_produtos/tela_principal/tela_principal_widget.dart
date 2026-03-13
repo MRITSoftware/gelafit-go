@@ -61,13 +61,6 @@ class _TelaPrincipalWidgetState extends State<TelaPrincipalWidget> {
             );
           },
         ).then((value) => safeSetState(() {}));
-        if (FFAppState().cpf != '') {
-          _model.timerRegressivoController.onResetTimer();
-          _model.timerRegressivoController.onStartTimer();
-        }
-      } else {
-        _model.timerRegressivoController.onResetTimer();
-        _model.timerRegressivoController.onStartTimer();
       }
 
       _model.instantTimer = InstantTimer.periodic(

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
@@ -10,6 +12,7 @@ import 'auth/supabase_auth/auth_util.dart';
 import '/backend/supabase/supabase.dart';
 import 'flutter_flow/flutter_flow_util.dart';
 import 'flutter_flow/internationalization.dart';
+import 'paginas_produtos/tela_verifica_online/tela_verifica_online_widget.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -105,7 +108,133 @@ class _MyAppState extends State<MyApp> {
         useMaterial3: false,
       ),
       themeMode: _themeMode,
+      builder: (context, child) {
+        if (child == null) {
+          return const SizedBox.shrink();
+        }
+
+        return GlobalInactivityGuard(
+          router: _router,
+          child: child,
+        );
+      },
       routerConfig: _router,
+    );
+  }
+}
+
+class GlobalInactivityGuard extends StatefulWidget {
+  const GlobalInactivityGuard({
+    super.key,
+    required this.router,
+    required this.child,
+  });
+
+  final GoRouter router;
+  final Widget child;
+
+  @override
+  State<GlobalInactivityGuard> createState() => _GlobalInactivityGuardState();
+}
+
+class _GlobalInactivityGuardState extends State<GlobalInactivityGuard> {
+  static const _timeoutDuration = Duration(minutes: 2);
+
+  Timer? _inactivityTimer;
+  bool _isShowingInactivityPrompt = false;
+
+  bool get _shouldTrackInactivity =>
+      !_isShowingInactivityPrompt && FFAppState().cpf.isNotEmpty;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshInactivityTracking();
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant GlobalInactivityGuard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshInactivityTracking();
+    });
+  }
+
+  @override
+  void dispose() {
+    _inactivityTimer?.cancel();
+    super.dispose();
+  }
+
+  void _handleUserInteraction([PointerEvent? _]) {
+    _refreshInactivityTracking();
+  }
+
+  void _refreshInactivityTracking() {
+    _inactivityTimer?.cancel();
+    if (!_shouldTrackInactivity) {
+      return;
+    }
+
+    _inactivityTimer = Timer(_timeoutDuration, _showInactivityPrompt);
+  }
+
+  Future<void> _showInactivityPrompt() async {
+    if (!mounted || !_shouldTrackInactivity) {
+      return;
+    }
+
+    _isShowingInactivityPrompt = true;
+    FFAppState().timer = false;
+
+    await showModalBottomSheet(
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      isDismissible: false,
+      enableDrag: false,
+      useSafeArea: true,
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: MediaQuery.viewInsetsOf(context),
+          child: TelaVerificaOnlineWidget(),
+        );
+      },
+    );
+
+    _isShowingInactivityPrompt = false;
+
+    if (!mounted) {
+      return;
+    }
+
+    if (FFAppState().cpf.isNotEmpty && FFAppState().timer == true) {
+      FFAppState().timer = false;
+      _refreshInactivityTracking();
+      return;
+    }
+
+    _inactivityTimer?.cancel();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _refreshInactivityTracking();
+      }
+    });
+
+    return Listener(
+      behavior: HitTestBehavior.translucent,
+      onPointerDown: _handleUserInteraction,
+      onPointerMove: _handleUserInteraction,
+      onPointerSignal: _handleUserInteraction,
+      child: widget.child,
     );
   }
 }
