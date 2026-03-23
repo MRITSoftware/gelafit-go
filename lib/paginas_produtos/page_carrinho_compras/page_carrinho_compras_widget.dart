@@ -44,9 +44,7 @@ class _PageCarrinhoComprasWidgetState extends State<PageCarrinhoComprasWidget> {
     context.watch<FFAppState>();
 
     return FutureBuilder<List<PlacasGelaFitRow>>(
-      future: PlacasGelaFitTable().querySingleRow(
-        queryFn: (q) => q,
-      ),
+      future: Future.value(<PlacasGelaFitRow>[]),
       builder: (context, snapshot) {
         // Customize what your widget looks like when it's loading.
         if (!snapshot.hasData) {
@@ -86,9 +84,7 @@ class _PageCarrinhoComprasWidgetState extends State<PageCarrinhoComprasWidget> {
               body: Align(
                 alignment: AlignmentDirectional(0.0, 0.0),
                 child: FutureBuilder<List<GelaFitSuzanoRow>>(
-                  future: GelaFitSuzanoTable().queryRows(
-                    queryFn: (q) => q,
-                  ),
+                  future: Future.value(<GelaFitSuzanoRow>[]),
                   builder: (context, snapshot) {
                     // Customize what your widget looks like when it's loading.
                     if (!snapshot.hasData) {

@@ -5,6 +5,7 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/instant_timer.dart';
 import '/index.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -30,6 +31,62 @@ class _TelaTransicaoWidgetState extends State<TelaTransicaoWidget>
 
   final animationsMap = <String, AnimationInfo>{};
 
+  Future<void> _goToMainScreen() async {
+    if (!mounted) {
+      return;
+    }
+
+    context.goNamed(
+      TelaPrincipalWidget.routeName,
+      extra: <String, dynamic>{
+        '__transition_info__': TransitionInfo(
+          hasTransition: true,
+          transitionType: PageTransitionType.fade,
+          duration: Duration(milliseconds: 0),
+        ),
+      },
+    );
+  }
+
+  Future<void> _refreshPlateConfig() async {
+    _model.logado = await PlacasGelaFitTable().queryRows(
+      queryFn: (q) => q
+          .eqOrNull(
+            'email',
+            currentUserEmail,
+          )
+          .eqOrNull(
+            'idemail',
+            currentUserUid,
+          ),
+    );
+
+    final placa = _model.logado?.firstOrNull;
+    if (placa == null) {
+      return;
+    }
+
+    FFAppState().deviceidplaca = placa.deviceId ?? '';
+    FFAppState().unid = placa.unidgelafit ?? '';
+    FFAppState().franquia = placa.idFranquia ?? '';
+    FFAppState().tokenmp = placa.tkMaquininha ?? '';
+    FFAppState().imagemContato = placa.contatoSuporte ?? '';
+    FFAppState().telefoneContato = placa.numeroSuporte ?? '';
+
+    final tuyaRows = await TuyaDevicesTable().queryRows(
+      queryFn: (q) => q.eqOrNull(
+        'site_id',
+        currentUserEmail,
+      ),
+    );
+    final tuya = tuyaRows.firstOrNull;
+    if (tuya != null) {
+      FFAppState().lanIp = tuya.lanIp ?? '';
+      FFAppState().versionPlaca = tuya.protocolVersion ?? '';
+      FFAppState().localKey = tuya.localKey ?? '';
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -37,34 +94,18 @@ class _TelaTransicaoWidgetState extends State<TelaTransicaoWidget>
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
+      if (FFAppState().hasCachedSafePlateConfig) {
+        unawaited(_refreshPlateConfig());
+        await _goToMainScreen();
+        return;
+      }
+
       _model.instantTimer = InstantTimer.periodic(
         duration: Duration(milliseconds: 1000),
         callback: (timer) async {
-          _model.logado = await PlacasGelaFitTable().queryRows(
-            queryFn: (q) => q
-                .eqOrNull(
-                  'email',
-                  currentUserEmail,
-                )
-                .eqOrNull(
-                  'idemail',
-                  currentUserUid,
-                ),
-          );
-          FFAppState().unid = _model.logado!.firstOrNull!.unidgelafit!;
-          FFAppState().tokenmp = _model.logado!.firstOrNull!.tkMaquininha!;
+          await _refreshPlateConfig();
           safeSetState(() {});
-
-          context.goNamed(
-            TelaPrincipalWidget.routeName,
-            extra: <String, dynamic>{
-              '__transition_info__': TransitionInfo(
-                hasTransition: true,
-                transitionType: PageTransitionType.fade,
-                duration: Duration(milliseconds: 0),
-              ),
-            },
-          );
+          await _goToMainScreen();
         },
         startImmediately: true,
       );

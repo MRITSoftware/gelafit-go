@@ -1,4 +1,5 @@
 import '/auth/supabase_auth/auth_util.dart';
+import '/backend/product_catalog_cache.dart';
 import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_timer.dart';
@@ -35,13 +36,58 @@ class TelaPrincipalWidget extends StatefulWidget {
 
 class _TelaPrincipalWidgetState extends State<TelaPrincipalWidget> {
   late TelaPrincipalModel _model;
+  late Future<List<GelaFitSuzanoRow>> _featuredProductsFuture;
+  late Future<List<GelaFitSuzanoRow>> _allProductsFuture;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  Future<List<GelaFitSuzanoRow>> _loadFeaturedProducts() async {
+    if (currentUserUid.isEmpty) {
+      return <GelaFitSuzanoRow>[];
+    }
+    return ProductCatalogCache.loadFeaturedProducts(userRef: currentUserUid);
+  }
+
+  Future<List<GelaFitSuzanoRow>> _loadAllProducts() async {
+    if (currentUserUid.isEmpty) {
+      return <GelaFitSuzanoRow>[];
+    }
+    return ProductCatalogCache.loadAllProducts(userRef: currentUserUid);
+  }
+
+  Future<void> _refreshCatalogInBackground() async {
+    if (currentUserUid.isEmpty) {
+      return;
+    }
+
+    try {
+      final featured = await ProductCatalogCache.refreshFeaturedProducts(
+        userRef: currentUserUid,
+      );
+      final all = await ProductCatalogCache.refreshAllProducts(
+        userRef: currentUserUid,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      safeSetState(() {
+        _featuredProductsFuture = Future.value(featured);
+        _allProductsFuture = Future.value(all);
+        _model.requestCompleted1 = true;
+        _model.requestLastUniqueKey1 = 'todos_produtos';
+        _model.requestCompleter2 = null;
+      });
+    } catch (_) {}
+  }
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => TelaPrincipalModel());
+    _featuredProductsFuture = _loadFeaturedProducts();
+    _allProductsFuture = _loadAllProducts();
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
@@ -66,14 +112,12 @@ class _TelaPrincipalWidgetState extends State<TelaPrincipalWidget> {
       _model.instantTimer = InstantTimer.periodic(
         duration: Duration(milliseconds: 120000),
         callback: (timer) async {
-          safeSetState(() => _model.requestCompleter2 = null);
-          safeSetState(() {
-            FFAppState().clearGelafitCacheKey(_model.requestLastUniqueKey1);
-            _model.requestCompleted1 = false;
-          });
+          await _refreshCatalogInBackground();
         },
-        startImmediately: true,
+        startImmediately: false,
       );
+
+      await _refreshCatalogInBackground();
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
@@ -97,27 +141,7 @@ class _TelaPrincipalWidgetState extends State<TelaPrincipalWidget> {
         body: Padding(
           padding: EdgeInsets.all(16.0),
           child: FutureBuilder<List<GelaFitSuzanoRow>>(
-            future: FFAppState()
-                .gelafit(
-              uniqueQueryKey: 'todos_produtos',
-              requestFn: () => GelaFitSuzanoTable().queryRows(
-                queryFn: (q) => q
-                    .eqOrNull(
-                      'user_ref',
-                      currentUserUid,
-                    )
-                    .gtOrNull(
-                      'quantidade',
-                      0,
-                    )
-                    .eqOrNull(
-                      'destaque',
-                      true,
-                    )
-                    .order('created_at', ascending: true),
-              ),
-            )
-                .then((result) {
+            future: _featuredProductsFuture.then((result) {
               try {
                 _model.requestCompleted1 = true;
                 _model.requestLastUniqueKey1 = 'todos_produtos';
@@ -1003,24 +1027,7 @@ class _TelaPrincipalWidgetState extends State<TelaPrincipalWidget> {
                                   Flexible(
                                     child:
                                         FutureBuilder<List<GelaFitSuzanoRow>>(
-                                      future: (_model.requestCompleter2 ??=
-                                              Completer<
-                                                  List<GelaFitSuzanoRow>>()
-                                                ..complete(GelaFitSuzanoTable()
-                                                    .queryRows(
-                                                  queryFn: (q) => q
-                                                      .eqOrNull(
-                                                        'user_ref',
-                                                        currentUserUid,
-                                                      )
-                                                      .gtOrNull(
-                                                        'quantidade',
-                                                        0,
-                                                      )
-                                                      .order('created_at',
-                                                          ascending: true),
-                                                )))
-                                          .future,
+                                      future: _allProductsFuture,
                                       builder: (context, snapshot) {
                                         // Customize what your widget looks like when it's loading.
                                         if (!snapshot.hasData) {

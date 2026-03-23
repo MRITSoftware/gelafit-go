@@ -1,3 +1,4 @@
+import '/backend/tutorial_cache.dart';
 import '/backend/supabase/supabase.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
@@ -22,6 +23,24 @@ class ComoUsarSistemaWidget extends StatefulWidget {
 
 class _ComoUsarSistemaWidgetState extends State<ComoUsarSistemaWidget> {
   late ComoUsarSistemaModel _model;
+  late Future<List<TutoriaisRow>> _tutorialsFuture;
+
+  Future<List<TutoriaisRow>> _loadTutorials() {
+    return TutorialCache.loadTutorials();
+  }
+
+  Future<void> _refreshTutorialsInBackground() async {
+    try {
+      final tutorials = await TutorialCache.refreshTutorials();
+      if (!mounted) {
+        return;
+      }
+
+      safeSetState(() {
+        _tutorialsFuture = Future.value(tutorials);
+      });
+    } catch (_) {}
+  }
 
   @override
   void setState(VoidCallback callback) {
@@ -33,10 +52,12 @@ class _ComoUsarSistemaWidgetState extends State<ComoUsarSistemaWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => ComoUsarSistemaModel());
+    _tutorialsFuture = _loadTutorials();
 
     // On component load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       _model.timerController.onStartTimer();
+      await _refreshTutorialsInBackground();
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
@@ -54,12 +75,7 @@ class _ComoUsarSistemaWidgetState extends State<ComoUsarSistemaWidget> {
     context.watch<FFAppState>();
 
     return FutureBuilder<List<TutoriaisRow>>(
-      future: TutoriaisTable().querySingleRow(
-        queryFn: (q) => q.eqOrNull(
-          'nome',
-          FFAppState().linkVideo,
-        ),
-      ),
+      future: _tutorialsFuture,
       builder: (context, snapshot) {
         // Customize what your widget looks like when it's loading.
         if (!snapshot.hasData) {
@@ -75,10 +91,10 @@ class _ComoUsarSistemaWidgetState extends State<ComoUsarSistemaWidget> {
             ),
           );
         }
-        List<TutoriaisRow> blurTutoriaisRowList = snapshot.data!;
-
-        final blurTutoriaisRow =
-            blurTutoriaisRowList.isNotEmpty ? blurTutoriaisRowList.first : null;
+        final blurTutoriaisRow = TutorialCache.findByName(
+          snapshot.data!,
+          FFAppState().linkVideo,
+        );
 
         return ClipRRect(
           borderRadius: BorderRadius.circular(4.0),
@@ -191,19 +207,49 @@ class _ComoUsarSistemaWidgetState extends State<ComoUsarSistemaWidget> {
                       width: double.infinity,
                       height: 100.0,
                       decoration: BoxDecoration(),
-                      child: FlutterFlowVideoPlayer(
-                        path: '${blurTutoriaisRow?.link}',
-                        videoType: VideoType.network,
-                        width: double.infinity,
-                        height: MediaQuery.sizeOf(context).height * 1.0,
-                        aspectRatio: 1.0,
-                        autoPlay: true,
-                        looping: false,
-                        showControls: false,
-                        allowFullScreen: false,
-                        allowPlaybackSpeedMenu: false,
-                        lazyLoad: false,
-                      ),
+                      child: blurTutoriaisRow?.link != null &&
+                              blurTutoriaisRow!.link!.isNotEmpty
+                          ? FlutterFlowVideoPlayer(
+                              path: blurTutoriaisRow.link!,
+                              videoType: VideoType.network,
+                              width: double.infinity,
+                              height: MediaQuery.sizeOf(context).height * 1.0,
+                              aspectRatio: 1.0,
+                              autoPlay: true,
+                              looping: false,
+                              showControls: false,
+                              allowFullScreen: false,
+                              allowPlaybackSpeedMenu: false,
+                              lazyLoad: false,
+                            )
+                          : Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(24.0),
+                                child: Text(
+                                  'Tutorial indisponivel no momento.',
+                                  textAlign: TextAlign.center,
+                                  style: FlutterFlowTheme.of(context)
+                                      .bodyMedium
+                                      .override(
+                                        font: GoogleFonts.readexPro(
+                                          fontWeight: FontWeight.w500,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .bodyMedium
+                                                  .fontStyle,
+                                        ),
+                                        color: FlutterFlowTheme.of(context)
+                                            .secondaryBackground,
+                                        fontSize: 22.0,
+                                        letterSpacing: 0.0,
+                                        fontWeight: FontWeight.w500,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .bodyMedium
+                                            .fontStyle,
+                                      ),
+                                ),
+                              ),
+                            ),
                     ),
                   ),
                 ],

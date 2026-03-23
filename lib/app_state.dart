@@ -25,7 +25,32 @@ class FFAppState extends ChangeNotifier {
       _deviceidplaca = prefs.getString('ff_deviceidplaca') ?? _deviceidplaca;
     });
     _safeInit(() {
+      _unid = prefs.getString('ff_unid') ?? _unid;
+    });
+    _safeInit(() {
+      _franquia = prefs.getString('ff_franquia') ?? _franquia;
+    });
+    _safeInit(() {
+      _lanIp = prefs.getString('ff_lanIp') ?? _lanIp;
+    });
+    _safeInit(() {
+      _versionPlaca = prefs.getString('ff_versionPlaca') ?? _versionPlaca;
+    });
+    _safeInit(() {
+      _localKey = prefs.getString('ff_localKey') ?? _localKey;
+    });
+    _safeInit(() {
+      _imagemContato = prefs.getString('ff_imagemContato') ?? _imagemContato;
+    });
+    _safeInit(() {
+      _telefoneContato =
+          prefs.getString('ff_telefoneContato') ?? _telefoneContato;
+    });
+    _safeInit(() {
       _cartCount = prefs.getInt('ff_cartCount') ?? _cartCount;
+    });
+    _safeInit(() {
+      prefs.remove('ff_tokenmp');
     });
   }
 
@@ -59,8 +84,14 @@ class FFAppState extends ChangeNotifier {
         _idFinalCartao = '';
       }
       if (clearDeviceId) {
-        _deviceidplaca = '';
-        prefs.setString('ff_deviceidplaca', _deviceidplaca);
+        deviceidplaca = '';
+        unid = '';
+        franquia = '';
+        lanIp = '';
+        versionPlaca = '';
+        localKey = '';
+        imagemContato = '';
+        telefoneContato = '';
       }
     });
   }
@@ -261,6 +292,7 @@ class FFAppState extends ChangeNotifier {
   String get unid => _unid;
   set unid(String value) {
     _unid = value;
+    prefs.setString('ff_unid', value);
   }
 
   int _cartCount = 0;
@@ -287,6 +319,7 @@ class FFAppState extends ChangeNotifier {
   String get franquia => _franquia;
   set franquia(String value) {
     _franquia = value;
+    prefs.setString('ff_franquia', value);
   }
 
   bool _pulseAPI = false;
@@ -305,31 +338,44 @@ class FFAppState extends ChangeNotifier {
   String get lanIp => _lanIp;
   set lanIp(String value) {
     _lanIp = value;
+    prefs.setString('ff_lanIp', value);
   }
 
   String _versionPlaca = '';
   String get versionPlaca => _versionPlaca;
   set versionPlaca(String value) {
     _versionPlaca = value;
+    prefs.setString('ff_versionPlaca', value);
   }
 
   String _localKey = '';
   String get localKey => _localKey;
   set localKey(String value) {
     _localKey = value;
+    prefs.setString('ff_localKey', value);
   }
 
   String _imagemContato = '';
   String get imagemContato => _imagemContato;
   set imagemContato(String value) {
     _imagemContato = value;
+    prefs.setString('ff_imagemContato', value);
   }
 
   String _telefoneContato = '';
   String get telefoneContato => _telefoneContato;
   set telefoneContato(String value) {
     _telefoneContato = value;
+    prefs.setString('ff_telefoneContato', value);
   }
+
+  bool get hasCachedSafePlateConfig =>
+      _deviceidplaca.isNotEmpty &&
+      _unid.isNotEmpty &&
+      _franquia.isNotEmpty &&
+      _lanIp.isNotEmpty &&
+      _versionPlaca.isNotEmpty &&
+      _localKey.isNotEmpty;
 
   String _statusPlaca = '';
   String get statusPlaca => _statusPlaca;

@@ -53,6 +53,7 @@ class _TelaTransicaoLoginWidgetState extends State<TelaTransicaoLoginWidget>
               currentUserEmail,
             ),
           );
+          FFAppState().deviceidplaca = _model.logado!.firstOrNull!.deviceId!;
           FFAppState().unid = _model.logado!.firstOrNull!.unidgelafit!;
           FFAppState().tokenmp = _model.logado!.firstOrNull!.tkMaquininha!;
           FFAppState().franquia = _model.logado!.firstOrNull!.idFranquia!;
@@ -151,6 +152,8 @@ class _TelaTransicaoLoginWidgetState extends State<TelaTransicaoLoginWidget>
               currentUserEmail,
             ),
           );
+          FFAppState().deviceidplaca =
+              _model.logadoTentativa2!.firstOrNull!.deviceId!;
           FFAppState().unid = _model.logado!.firstOrNull!.unidgelafit!;
           FFAppState().tokenmp = _model.logado!.firstOrNull!.tkMaquininha!;
           FFAppState().franquia = _model.logado!.firstOrNull!.idFranquia!;
