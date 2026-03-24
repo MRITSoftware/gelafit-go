@@ -30,6 +30,7 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
   late PagePagamentoCartaoModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _sentToFinalVerification = false;
 
   String _normalizedPaymentIntentStatus(dynamic response) {
     final rawStatus = StatusPagCartaoCall.status(response)?.trim();
@@ -48,6 +49,32 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
       status == 'CANCELLED' ||
       status == 'ERROR' ||
       status == 'ABANDONED';
+
+  void _continueToFinalVerification(dynamic response) {
+    if (_sentToFinalVerification || !mounted) {
+      return;
+    }
+
+    final idFinal = StatusPagCartaoCall.idStatusFinal(response);
+    if (idFinal == null || idFinal.isEmpty) {
+      return;
+    }
+
+    _sentToFinalVerification = true;
+    FFAppState().idFinalCartao = idFinal;
+    safeSetState(() {});
+
+    context.goNamed(
+      VerificaPagamentoWidget.routeName,
+      extra: <String, dynamic>{
+        '__transition_info__': TransitionInfo(
+          hasTransition: true,
+          transitionType: PageTransitionType.fade,
+          duration: Duration(milliseconds: 0),
+        ),
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -118,6 +145,15 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
         final statusPagamento = _normalizedPaymentIntentStatus(
           pagePagamentoCartaoStatusPagCartaoResponse.jsonBody,
         );
+
+        if (_requiresFinalConfirmation(statusPagamento) &&
+            !_sentToFinalVerification) {
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            _continueToFinalVerification(
+              pagePagamentoCartaoStatusPagCartaoResponse.jsonBody,
+            );
+          });
+        }
 
         return PopScope(
           canPop: false,
@@ -1067,21 +1103,9 @@ class _PagePagamentoCartaoWidgetState extends State<PagePagamentoCartaoWidget> {
                                           );
                                           return;
                                         }
-                                        FFAppState().idFinalCartao = idFinal;
-                                        safeSetState(() {});
-
-                                        context.goNamed(
-                                          VerificaPagamentoWidget.routeName,
-                                          extra: <String, dynamic>{
-                                            '__transition_info__':
-                                                TransitionInfo(
-                                              hasTransition: true,
-                                              transitionType:
-                                                  PageTransitionType.fade,
-                                              duration:
-                                                  Duration(milliseconds: 0),
-                                            ),
-                                          },
+                                        _continueToFinalVerification(
+                                          pagePagamentoCartaoStatusPagCartaoResponse
+                                              .jsonBody,
                                         );
                                       },
                                       text: 'CONTINUAR',

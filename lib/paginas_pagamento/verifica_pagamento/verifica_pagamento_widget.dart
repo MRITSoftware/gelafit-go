@@ -38,8 +38,81 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
   late VerificaPagamentoModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _isCompletingApprovedFlow = false;
 
   final animationsMap = <String, AnimationInfo>{};
+
+  Future<void> _completeApprovedFlow() async {
+    if (_isCompletingApprovedFlow || !mounted) {
+      return;
+    }
+
+    _isCompletingApprovedFlow = true;
+    _model.liberaBotao = true;
+    safeSetState(() {});
+
+    _model.relatorioEnviadoRotaLocalCartao =
+        await actions.envioRelatorioVendas(
+      FFAppState().dtDadosRelatorio.toList(),
+      true,
+    );
+    if (!mounted) {
+      return;
+    }
+
+    if (_model.relatorioEnviadoRotaLocalCartao == true) {
+      _model.travaLocalRota1 = await actions.abrirGeladeiraComRetry(
+        FFAppState().deviceidplaca,
+        'on',
+        FFAppState().localKey,
+        FFAppState().lanIp,
+        currentUserEmail,
+        FFAppState().versionPlaca,
+      );
+      FFAppState().statusPlaca = getJsonField(
+        _model.travaLocalRota1,
+        r'''$.ok''',
+      ).toString();
+    } else {
+      await actions.filaRelatorioVendasLote(
+        FFAppState().dtDadosRelatorio.toList(),
+      );
+      _model.travaLocalRota2 = await actions.abrirGeladeiraComRetry(
+        FFAppState().deviceidplaca,
+        'on',
+        FFAppState().localKey,
+        FFAppState().lanIp,
+        currentUserEmail,
+        FFAppState().versionPlaca,
+      );
+      FFAppState().statusPlaca = getJsonField(
+        _model.travaLocalRota2,
+        r'''$.ok''',
+      ).toString();
+    }
+    if (!mounted) {
+      return;
+    }
+
+    await showModalBottomSheet(
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      enableDrag: false,
+      context: context,
+      builder: (context) {
+        return GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+            FocusManager.instance.primaryFocus?.unfocus();
+          },
+          child: Padding(
+            padding: MediaQuery.viewInsetsOf(context),
+            child: AbrindoGeladeiraWidget(),
+          ),
+        );
+      },
+    ).then((value) => safeSetState(() {}));
+  }
 
   @override
   void initState() {
@@ -77,7 +150,7 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
               ) ==
               'approved') {
             _model.instantTimer?.cancel();
-            _model.timerBotaoController.onStartTimer();
+            await _completeApprovedFlow();
           }
         },
         startImmediately: true,
@@ -827,86 +900,7 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
                               (_model.liberaBotao == true))
                             FFButtonWidget(
                               onPressed: () async {
-                                _model.relatorioEnviadoRotaLocalCartao =
-                                    await actions.envioRelatorioVendas(
-                                  FFAppState().dtDadosRelatorio.toList(),
-                                  true,
-                                );
-                                if (_model.relatorioEnviadoRotaLocalCartao ==
-                                    true) {
-                                  _model.travaLocalRota1 =
-                                      await actions.abrirGeladeiraComRetry(
-                                    FFAppState().deviceidplaca,
-                                    'on',
-                                    FFAppState().localKey,
-                                    FFAppState().lanIp,
-                                    currentUserEmail,
-                                    FFAppState().versionPlaca,
-                                  );
-                                  FFAppState().statusPlaca = getJsonField(
-                                    _model.travaLocalRota1,
-                                    r'''$.ok''',
-                                  ).toString();
-                                  await showModalBottomSheet(
-                                    isScrollControlled: true,
-                                    backgroundColor: Colors.transparent,
-                                    enableDrag: false,
-                                    context: context,
-                                    builder: (context) {
-                                      return GestureDetector(
-                                        onTap: () {
-                                          FocusScope.of(context).unfocus();
-                                          FocusManager.instance.primaryFocus
-                                              ?.unfocus();
-                                        },
-                                        child: Padding(
-                                          padding:
-                                              MediaQuery.viewInsetsOf(context),
-                                          child: AbrindoGeladeiraWidget(),
-                                        ),
-                                      );
-                                    },
-                                  ).then((value) => safeSetState(() {}));
-                                } else {
-                                  await actions.filaRelatorioVendasLote(
-                                    FFAppState().dtDadosRelatorio.toList(),
-                                  );
-                                  _model.travaLocalRota2 =
-                                      await actions.abrirGeladeiraComRetry(
-                                    FFAppState().deviceidplaca,
-                                    'on',
-                                    FFAppState().localKey,
-                                    FFAppState().lanIp,
-                                    currentUserEmail,
-                                    FFAppState().versionPlaca,
-                                  );
-                                  FFAppState().statusPlaca = getJsonField(
-                                    _model.travaLocalRota2,
-                                    r'''$.ok''',
-                                  ).toString();
-                                  await showModalBottomSheet(
-                                    isScrollControlled: true,
-                                    backgroundColor: Colors.transparent,
-                                    enableDrag: false,
-                                    context: context,
-                                    builder: (context) {
-                                      return GestureDetector(
-                                        onTap: () {
-                                          FocusScope.of(context).unfocus();
-                                          FocusManager.instance.primaryFocus
-                                              ?.unfocus();
-                                        },
-                                        child: Padding(
-                                          padding:
-                                              MediaQuery.viewInsetsOf(context),
-                                          child: AbrindoGeladeiraWidget(),
-                                        ),
-                                      );
-                                    },
-                                  ).then((value) => safeSetState(() {}));
-                                }
-
-                                safeSetState(() {});
+                                await _completeApprovedFlow();
                               },
                               text: 'CONTINUAR',
                               options: FFButtonOptions(
