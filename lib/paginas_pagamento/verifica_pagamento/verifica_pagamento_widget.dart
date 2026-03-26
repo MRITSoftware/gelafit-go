@@ -18,8 +18,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import 'package:provider/provider.dart';
 import 'verifica_pagamento_model.dart';
+import 'package:gela_fit_g_o/model/abertura_service.dart';
+import 'package:gela_fit_g_o/model/produto.dart';
 export 'verifica_pagamento_model.dart';
 
 class VerificaPagamentoWidget extends StatefulWidget {
@@ -69,43 +72,42 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
 
     Future<String> escolherDispositivo(BuildContext context) async {
       // Usa o modal implementado no AbrindoGeladeiraWidget
-      final escolha = await (context.findAncestorStateOfType<_AbrindoGeladeiraWidgetState>()?.mostrarEscolhaDispositivo(context)
-        ?? showDialog<String>(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) {
-            return AlertDialog(
-              title: Text('Escolha o local de retirada'),
-              content: Text('Você comprou produtos na geladeira e no armário. Qual deseja abrir primeiro?'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop('geladeira'),
-                  child: Text('Geladeira'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop('armario'),
-                  child: Text('Armário'),
-                ),
-              ],
-            );
-          },
-        ));
+      final escolha = await showDialog<String>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Escolha o local de retirada'),
+            content: Text('Você comprou produtos na geladeira e no armário. Qual deseja abrir primeiro?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop('geladeira'),
+                child: Text('Geladeira'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop('armario'),
+                child: Text('Armário'),
+              ),
+            ],
+          );
+        },
+      );
       return escolha ?? 'geladeira';
     }
 
-    List<produto_model.Produto> produtosComprados = FFAppState()
-      .dtDadosRelatorio
-      .map((p) => produto_model.Produto(
-          id: p.nomeProduto, // Não há id, usar nome como identificador
-          nome: p.nomeProduto,
-          preco: p.valor,
-          localizacao: (p.unidade ?? '').toLowerCase(), // unidade = geladeira/armario
-          deviceId: '', // Se necessário, ajustar para buscar deviceId correto
-          quantidade: p.quantidade,
-        ))
-      .toList();
+    List<Produto> produtosComprados = FFAppState()
+        .dtDadosRelatorio
+        .map((p) => Produto(
+              id: p.nomeProduto, // Não há id, usar nome como identificador
+              nome: p.nomeProduto,
+              preco: p.valor,
+              localizacao: (p.unidade ?? '').toLowerCase(), // unidade = geladeira/armario
+              deviceId: '', // Se necessário, ajustar para buscar deviceId correto
+              quantidade: p.quantidade,
+            ))
+        .toList();
 
-    await abertura.fluxoAberturaComEscolha(
+    await fluxoAberturaComEscolha(
       produtosComprados,
       onEscolha: (msg) async => await escolherDispositivo(context),
     );
