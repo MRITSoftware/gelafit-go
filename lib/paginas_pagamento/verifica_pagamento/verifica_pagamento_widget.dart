@@ -60,36 +60,56 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
       return;
     }
 
-    if (_model.relatorioEnviadoRotaLocalCartao == true) {
-      _model.travaLocalRota1 = await actions.abrirGeladeiraComRetry(
-        FFAppState().deviceidplaca,
-        'on',
-        FFAppState().localKey,
-        FFAppState().lanIp,
-        currentUserEmail,
-        FFAppState().versionPlaca,
-      );
-      FFAppState().statusPlaca = getJsonField(
-        _model.travaLocalRota1,
-        r'''$.ok''',
-      ).toString();
-    } else {
-      await actions.filaRelatorioVendasLote(
-        FFAppState().dtDadosRelatorio.toList(),
-      );
-      _model.travaLocalRota2 = await actions.abrirGeladeiraComRetry(
-        FFAppState().deviceidplaca,
-        'on',
-        FFAppState().localKey,
-        FFAppState().lanIp,
-        currentUserEmail,
-        FFAppState().versionPlaca,
-      );
-      FFAppState().statusPlaca = getJsonField(
-        _model.travaLocalRota2,
-        r'''$.ok''',
-      ).toString();
+    // --- INTEGRAÇÃO NOVA: abrir geladeira/armário conforme produtos ---
+
+    // Ajuste: integração real do modal de escolha
+    // Importações diretas
+    import 'package:gela_fit_g_o/model/abertura_service.dart' as abertura;
+    import 'package:gela_fit_g_o/model/produto.dart' as produto_model;
+
+    Future<String> escolherDispositivo(BuildContext context) async {
+      // Usa o modal implementado no AbrindoGeladeiraWidget
+      final escolha = await (context.findAncestorStateOfType<_AbrindoGeladeiraWidgetState>()?.mostrarEscolhaDispositivo(context)
+        ?? showDialog<String>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Escolha o local de retirada'),
+              content: Text('Você comprou produtos na geladeira e no armário. Qual deseja abrir primeiro?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop('geladeira'),
+                  child: Text('Geladeira'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop('armario'),
+                  child: Text('Armário'),
+                ),
+              ],
+            );
+          },
+        ));
+      return escolha ?? 'geladeira';
     }
+
+    List<produto_model.Produto> produtosComprados = FFAppState()
+        .dtDadosRelatorio
+        .map((p) => produto_model.Produto(
+              id: p.id.toString(),
+              nome: p.nomeProduto,
+              preco: p.preco,
+              localizacao: p.categoria.toLowerCase(),
+              deviceId: p.deviceId,
+              quantidade: p.quantidadeEscolhida,
+            ))
+        .toList();
+
+    await abertura.fluxoAberturaComEscolha(
+      produtosComprados,
+      onEscolha: (msg) async => await escolherDispositivo(context),
+    );
+
     if (!mounted) {
       return;
     }

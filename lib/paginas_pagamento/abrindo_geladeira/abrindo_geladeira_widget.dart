@@ -19,6 +19,29 @@ class AbrindoGeladeiraWidget extends StatefulWidget {
 }
 
 class _AbrindoGeladeiraWidgetState extends State<AbrindoGeladeiraWidget> {
+    /// Exibe um modal para o usuário escolher qual dispositivo abrir primeiro
+    Future<String?> mostrarEscolhaDispositivo(BuildContext context) async {
+      return showDialog<String>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Escolha o local de retirada'),
+            content: Text('Você comprou produtos na geladeira e no armário. Qual deseja abrir primeiro?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop('geladeira'),
+                child: Text('Geladeira'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop('armario'),
+                child: Text('Armário'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   late AbrindoGeladeiraModel _model;
 
   @override
