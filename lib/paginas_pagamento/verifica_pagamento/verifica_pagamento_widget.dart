@@ -94,16 +94,16 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
     }
 
     List<produto_model.Produto> produtosComprados = FFAppState()
-        .dtDadosRelatorio
-        .map((p) => produto_model.Produto(
-              id: p.id.toString(),
-              nome: p.nomeProduto,
-              preco: p.preco,
-              localizacao: p.categoria.toLowerCase(),
-              deviceId: p.deviceId,
-              quantidade: p.quantidadeEscolhida,
-            ))
-        .toList();
+      .dtDadosRelatorio
+      .map((p) => produto_model.Produto(
+          id: p.nomeProduto, // Não há id, usar nome como identificador
+          nome: p.nomeProduto,
+          preco: p.valor,
+          localizacao: (p.unidade ?? '').toLowerCase(), // unidade = geladeira/armario
+          deviceId: '', // Se necessário, ajustar para buscar deviceId correto
+          quantidade: p.quantidade,
+        ))
+      .toList();
 
     await abertura.fluxoAberturaComEscolha(
       produtosComprados,
