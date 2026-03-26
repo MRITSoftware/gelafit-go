@@ -66,9 +66,6 @@ class _VerificaPagamentoWidgetState extends State<VerificaPagamentoWidget>
     // --- INTEGRAÇÃO NOVA: abrir geladeira/armário conforme produtos ---
 
     // Ajuste: integração real do modal de escolha
-    // Importações diretas
-    import 'package:gela_fit_g_o/model/abertura_service.dart' as abertura;
-    import 'package:gela_fit_g_o/model/produto.dart' as produto_model;
 
     Future<String> escolherDispositivo(BuildContext context) async {
       // Usa o modal implementado no AbrindoGeladeiraWidget
